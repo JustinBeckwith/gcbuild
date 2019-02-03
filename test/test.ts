@@ -1,14 +1,16 @@
 import * as assert from 'assert';
+import chalk from 'chalk';
 import * as fs from 'fs';
 import * as nock from 'nock';
 import * as path from 'path';
 import * as proxyquire from 'proxyquire';
 
-const sourcePath = path.resolve('test/fixtures/');
-const gcloudignore = path.resolve('test/fixtures/.gcloudignore');
+import {BuildError} from '../src';
 
 describe('gcbuild', () => {
   nock.disableNetConnect();
+
+  afterEach(() => nock.cleanAll());
 
   const {Builder} = proxyquire('../src/index', {
     'google-auth-library': {
@@ -27,7 +29,7 @@ describe('gcbuild', () => {
     }
   });
 
-  describe('ignore rules', () => {
+  describe('🙈 ignore rules', () => {
     it('should return 0 rules if no .gcloudignore is available', async () => {
       const builder = new Builder();
       const rules = await builder.getIgnoreRules();
@@ -38,6 +40,7 @@ describe('gcbuild', () => {
        async () => {
          const expected =
              ['.gcloudignore', '.git', '.gitignore', 'node_modules', 'test/'];
+         const gcloudignore = path.resolve('test/fixtures/.gcloudignore');
          await new Promise((resolve, reject) => {
            fs.createReadStream(gcloudignore)
                .pipe(fs.createWriteStream('.gcloudignore'))
@@ -51,7 +54,7 @@ describe('gcbuild', () => {
        });
   });
 
-  describe('pack & upload', () => {
+  describe('📦 pack & upload', () => {
     it('should create a GCS bucket if the expected one does not exist',
        async () => {
          const builder = new Builder();
@@ -62,12 +65,37 @@ describe('gcbuild', () => {
     });
   });
 
-  describe('end to end', () => {
+  describe('🚨 error handing', () => {
+    it('should include a log with an error', async () => {
+      const scopes = [
+        mockBucketExists(), mockUpload(), mockBuild(), mockPollError(),
+        mockLogFetch()
+      ];
+      const sourcePath = path.resolve('test/fixtures');
+      const builder = new Builder({sourcePath});
+      try {
+        await builder.build();
+        assert.fail('Expected to throw.');
+      } catch (e) {
+        const err = e as BuildError;
+        assert.ok(err.log);
+        assert.ok(err.log!.includes('🌳'), `
+            Expected to match:
+              ${chalk.green('🌳')}
+              ${chalk.red(err.log!)}
+          `);
+      }
+      scopes.forEach(s => s.done());
+    });
+  });
+
+  describe('🏁 end to end', () => {
     it('should work together end to end', async () => {
       const scopes = [
         mockBucketExists(), mockUpload(), mockBuild(), mockPoll(),
         mockLogFetch()
       ];
+      const sourcePath = path.resolve('test/fixtures');
       const builder = new Builder({sourcePath});
       const result = await builder.build();
       scopes.forEach(s => s.done());
@@ -109,4 +137,10 @@ function mockLogFetch() {
   return nock('https://www.googleapis.com')
       .get('/storage/v1/b/not-a-bucket/o/log-not-an-id.txt?alt=media')
       .reply(200, '🌳');
+}
+
+function mockPollError() {
+  return nock('https://cloudbuild.googleapis.com')
+      .get('/v1/not-a-real-operation')
+      .reply(200, {error: '💩'});
 }
