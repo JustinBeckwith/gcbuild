@@ -70,30 +70,49 @@ export class Builder extends EventEmitter {
     const projectId = await this._auth.getProjectId();
 
     // load configuration
-    const config = await getConfig(this.configPath);
-    config.source = {storageSource: {bucket, object: file}};
+    const requestBody = await getConfig(this.configPath);
+    requestBody.source = {storageSource: {bucket, object: file}};
 
     // create the request to perform a build
-    const res =
-        await this.gcb.projects.builds.create({projectId, requestBody: config});
+    const res = await this.gcb.projects.builds.create({projectId, requestBody});
+    const result = res.data as BuildResult;
 
     // poll the operation until complete
     const operationId = res.data.name!;
-    await this.poll(operationId);
+    try {
+      await this.poll(operationId);
+    } catch (e) {
+      let log: string;
+      try {
+        log = await this.fetchLog(result);
+      } catch (e) {
+      }
+      (e as BuildError).log = log!;
+      throw e;
+    }
 
     // Log streaming is super hard to understand.  For now, just fetch the
     // log from a well known location *after* it's complete.
     // TODO: make it stream
-    const result = res.data as BuildResult;
+    const log = await this.fetchLog(result);
+    result.log = log;
+    this.emit(ProgressEvent.COMPLETE);
+    return result;
+  }
+
+  /**
+   * Obtain the full text of the log after the build is complete.
+   * At some point this should be replaced with streaming logs.
+   * @param result The BuildResult returned from the create operation
+   */
+  private async fetchLog(result: BuildResult): Promise<string> {
     const build = result.metadata.build;
     const logsBucket = build.logsBucket!.split('gs://').filter(x => !!x)[0];
     const logFilename = `log-${build.id}.txt`;
     const logRes = await this.gcs.objects.get(
         {bucket: logsBucket, object: logFilename, alt: 'media'});
     this.emit(ProgressEvent.LOG, logRes.data);
-    this.emit(ProgressEvent.COMPLETE);
-    result.log = logRes.data as string;
-    return result;
+    return logRes.data as string;
   }
 
   /**
@@ -188,4 +207,8 @@ export interface BuildResult {
   name: string;
   log: string;
   metadata: {build: cloudbuild_v1.Schema$Build;};
+}
+
+export interface BuildError extends Error {
+  log?: string;
 }
