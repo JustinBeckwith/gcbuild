@@ -17,13 +17,15 @@ export enum ProgressEvent {
   UPLOADING = 'UPLOADING',
   BUILDING = 'BUILDING',
   COMPLETE = 'COMPLETE',
+  LOG = 'LOG'
 }
 
 export interface BuildOptions extends GoogleAuthOptions {
   /**
-   * Required. The path to the container sources.
+   * The path to the container sources.
+   * Defaults to CWD if not defined.
    */
-  sourcePath: string;
+  sourcePath?: string;
   /**
    * The path to the yaml/json config.
    * Defaults to `${sourcePath}/cloudbuild.yaml`
@@ -45,12 +47,11 @@ export class Builder extends EventEmitter {
   private gcb = google.cloudbuild('v1');
   private gcs = google.storage('v1');
 
-  constructor(options: BuildOptions) {
+  constructor(options: BuildOptions = {}) {
     super();
-    this.sourcePath = options.sourcePath;
+    this.sourcePath = options.sourcePath || process.cwd();
     this.configPath =
         options.configPath || path.join(this.sourcePath, 'cloudbuild.yaml');
-    console.log(this.sourcePath, this.configPath);
     this._auth = new GoogleAuth(options);
   }
 
@@ -63,24 +64,22 @@ export class Builder extends EventEmitter {
     google.options({auth});
 
     this.emit(ProgressEvent.UPLOADING);
-    const {bucket, file} = await this._upload();
+    const {bucket, file} = await this.upload();
 
     this.emit(ProgressEvent.BUILDING);
     const projectId = await this._auth.getProjectId();
 
     // load configuration
     const config = await getConfig(this.configPath);
-    console.log(config);
     config.source = {storageSource: {bucket, object: file}};
-    console.log(config);
 
+    // create the request to perform a build
     const res =
         await this.gcb.projects.builds.create({projectId, requestBody: config});
-    console.log(res.data);
 
     // poll the operation until complete
     const operationId = res.data.name!;
-    await this._poll(operationId);
+    await this.poll(operationId);
 
     // Log streaming is super hard to understand.  For now, just fetch the
     // log from a well known location *after* it's complete.
@@ -91,7 +90,7 @@ export class Builder extends EventEmitter {
     const logFilename = `log-${build.id}.txt`;
     const logRes = await this.gcs.objects.get(
         {bucket: logsBucket, object: logFilename, alt: 'media'});
-    console.log(logRes.data);
+    this.emit(ProgressEvent.LOG, logRes.data);
     this.emit(ProgressEvent.COMPLETE);
   }
 
@@ -100,7 +99,7 @@ export class Builder extends EventEmitter {
    * @private
    * @param name Fully qualified name of the operation.
    */
-  async _poll(name: string) {
+  private async poll(name: string) {
     const res = await this.gcb.operations.get({name});
     const operation = res.data;
     if (operation.error) {
@@ -111,7 +110,7 @@ export class Builder extends EventEmitter {
       return;
     }
     await new Promise(r => setTimeout(r, 3000));
-    await this._poll(name);
+    await this.poll(name);
   }
 
   /**
@@ -120,7 +119,7 @@ export class Builder extends EventEmitter {
    * @param localPath Fully qualified path to the zip on disk.
    * @param remotePath Signed url used to put the file to
    */
-  async _upload() {
+  private async upload() {
     // check to see if the bucket exists
     const projectId = await this._auth.getProjectId();
     const bucketName = `${projectId}-gcb-staging-bbq`;
@@ -129,13 +128,13 @@ export class Builder extends EventEmitter {
 
     // if it does not exist, create it!
     if (!exists) {
-      this.emit(ProgressEvent.CREATING_BUCKET);
+      this.emit(ProgressEvent.CREATING_BUCKET, bucketName);
       await this.gcs.buckets.insert(
           {project: projectId, requestBody: {name: bucketName}});
     }
 
     // Get the full list of files that don't match .gcloudignore
-    const ignorePatterns = await this._getIgnoreRules();
+    const ignorePatterns = await this.getIgnoreRules();
     const files =
         await globby('**/**', {ignore: ignorePatterns, cwd: this.sourcePath});
 
@@ -164,7 +163,7 @@ export class Builder extends EventEmitter {
    * and return the ignore rules as an array of strings.
    * @private
    */
-  async _getIgnoreRules() {
+  private async getIgnoreRules() {
     const ignoreFile = path.join(this.sourcePath, '.gcloudignore');
     let ignoreRules = new Array<string>();
     try {
