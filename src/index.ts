@@ -2,7 +2,7 @@ import {EventEmitter} from 'events';
 import * as fs from 'fs';
 import * as globby from 'globby';
 import {GoogleAuth, GoogleAuthOptions} from 'google-auth-library';
-import {google} from 'googleapis';
+import {cloudbuild_v1, google} from 'googleapis';
 import * as path from 'path';
 import {PassThrough} from 'stream';
 import * as tar from 'tar';
@@ -58,7 +58,7 @@ export class Builder extends EventEmitter {
   /**
    * Deploy the current application using the given opts.
    */
-  async build() {
+  async build(): Promise<BuildResult> {
     const auth = await this._auth.getClient(
         {scopes: ['https://www.googleapis.com/auth/cloud-platform']});
     google.options({auth});
@@ -84,14 +84,16 @@ export class Builder extends EventEmitter {
     // Log streaming is super hard to understand.  For now, just fetch the
     // log from a well known location *after* it's complete.
     // TODO: make it stream
-    const build = res.data.metadata!.build;
-    const logsBucket =
-        (build.logsBucket as string).split('gs://').filter(x => !!x)[0];
+    const result = res.data as BuildResult;
+    const build = result.metadata.build;
+    const logsBucket = build.logsBucket!.split('gs://').filter(x => !!x)[0];
     const logFilename = `log-${build.id}.txt`;
     const logRes = await this.gcs.objects.get(
         {bucket: logsBucket, object: logFilename, alt: 'media'});
     this.emit(ProgressEvent.LOG, logRes.data);
     this.emit(ProgressEvent.COMPLETE);
+    result.log = logRes.data as string;
+    return result;
   }
 
   /**
@@ -180,4 +182,10 @@ export class Builder extends EventEmitter {
 export async function build(options: BuildOptions) {
   const builder = new Builder(options);
   return builder.build();
+}
+
+export interface BuildResult {
+  name: string;
+  log: string;
+  metadata: {build: cloudbuild_v1.Schema$Build;};
 }

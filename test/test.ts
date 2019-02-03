@@ -69,8 +69,9 @@ describe('gcbuild', () => {
         mockLogFetch()
       ];
       const builder = new Builder({sourcePath});
-      await builder.build();
+      const result = await builder.build();
       scopes.forEach(s => s.done());
+      assert.ok(result.metadata);
     });
   });
 });
