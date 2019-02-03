@@ -2,8 +2,10 @@
   "name": "gcbuild",
   "version": "0.0.0",
   "description": "An API and CLI for building docker containers with Google Cloud Build.",
+  "repository": "JustinBeckwith/gcbuild",
   "bin": {
-    "gcb": "./build/src/cli.js"
+    "gcb": "./build/src/cli.js",
+    "gcbuild": "./build/src/cli.js"
   },
   "main": "./build/src/index.js",
   "types": "./build/src/index.d.ts",
@@ -32,6 +34,7 @@
   "license": "MIT",
   "dependencies": {
     "@google-cloud/storage": "^2.4.1",
+    "chalk": "^2.4.2",
     "globby": "^9.0.0",
     "google-auth-library": "^3.0.0",
     "googleapis": "^37.0.0",

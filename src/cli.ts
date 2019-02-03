@@ -3,6 +3,7 @@ import * as meow from 'meow';
 import {Builder, BuildOptions, ProgressEvent} from './';
 import * as updateNotifier from 'update-notifier';
 import * as ora from 'ora';
+import chalk from 'chalk';
 import * as util from 'util';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -58,9 +59,15 @@ async function main() {
   if (!hasIgnore) {
     await generateIgnoreFile(opts.sourcePath);
   }
-  const spinny = ora('Initializing deployment...').start();
+  const spinny = ora('Initializing build...').start();
   const builder = new Builder(opts);
   builder
+      .on(ProgressEvent.CREATING_BUCKET,
+          (bucket) => {
+            spinny.stopAndPersist(
+                {symbol: '🌧', text: `Bucket '${bucket}' created.`});
+            spinny.start('Packing and uploading sources...');
+          })
       .on(ProgressEvent.UPLOADING,
           () => {
             spinny.stopAndPersist({symbol: '📦', text: 'Source code packaged.'});
@@ -71,6 +78,10 @@ async function main() {
             spinny.stopAndPersist(
                 {symbol: '🛸', text: 'Source uploaded to cloud.'});
             spinny.start('Building container...');
+          })
+      .on(ProgressEvent.LOG,
+          (data) => {
+            console.error('\n\n' + chalk.gray(data));
           })
       .on(ProgressEvent.COMPLETE, () => {
         const seconds = (Date.now() - start) / 1000;
