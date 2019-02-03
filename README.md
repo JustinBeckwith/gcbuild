@@ -85,7 +85,6 @@ For this method, you'll need to [create a service account](https://cloud.google.
 1. Click Create. A JSON file that contains your key downloads to your computer.
 
 ```sh
-$ export GCLOUD_PROJECT="my-rad-project-id"
 $ export GOOGLE_APPLICATION_CREDENTIALS="./keys.json"
 $ gcb .
 ```
