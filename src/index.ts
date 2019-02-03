@@ -3,11 +3,12 @@ import * as fs from 'fs';
 import * as globby from 'globby';
 import {GoogleAuth, GoogleAuthOptions} from 'google-auth-library';
 import {google} from 'googleapis';
-import {promisify} from 'util';
 import * as path from 'path';
-import {getConfig} from './config';
+import {PassThrough} from 'stream';
 import * as tar from 'tar';
-import { PassThrough } from 'stream';
+import {promisify} from 'util';
+
+import {getConfig} from './config';
 
 const readFile = promisify(fs.readFile);
 
@@ -47,7 +48,8 @@ export class Builder extends EventEmitter {
   constructor(options: BuildOptions) {
     super();
     this.sourcePath = options.sourcePath;
-    this.configPath = options.configPath || path.join(this.sourcePath, 'cloudbuild.yaml');
+    this.configPath =
+        options.configPath || path.join(this.sourcePath, 'cloudbuild.yaml');
     console.log(this.sourcePath, this.configPath);
     this._auth = new GoogleAuth(options);
   }
@@ -56,9 +58,8 @@ export class Builder extends EventEmitter {
    * Deploy the current application using the given opts.
    */
   async build() {
-    const auth = await this._auth.getClient({
-      scopes: ['https://www.googleapis.com/auth/cloud-platform']
-    });
+    const auth = await this._auth.getClient(
+        {scopes: ['https://www.googleapis.com/auth/cloud-platform']});
     google.options({auth});
 
     this.emit(ProgressEvent.UPLOADING);
@@ -70,18 +71,11 @@ export class Builder extends EventEmitter {
     // load configuration
     const config = await getConfig(this.configPath);
     console.log(config);
-    config.source = {
-      storageSource: {
-        bucket,
-        object: file
-      }
-    };
+    config.source = {storageSource: {bucket, object: file}};
     console.log(config);
 
-    const res = await this.gcb.projects.builds.create({
-      projectId,
-      requestBody: config
-    });
+    const res =
+        await this.gcb.projects.builds.create({projectId, requestBody: config});
     console.log(res.data);
 
     // poll the operation until complete
@@ -92,13 +86,11 @@ export class Builder extends EventEmitter {
     // log from a well known location *after* it's complete.
     // TODO: make it stream
     const build = res.data.metadata!.build;
-    const logsBucket = (build.logsBucket as string).split('gs://').filter(x => !!x)[0];
+    const logsBucket =
+        (build.logsBucket as string).split('gs://').filter(x => !!x)[0];
     const logFilename = `log-${build.id}.txt`;
-    const logRes = await this.gcs.objects.get({
-      bucket: logsBucket,
-      object: logFilename,
-      alt: 'media'
-    });
+    const logRes = await this.gcs.objects.get(
+        {bucket: logsBucket, object: logFilename, alt: 'media'});
     console.log(logRes.data);
     this.emit(ProgressEvent.COMPLETE);
   }
@@ -132,33 +124,23 @@ export class Builder extends EventEmitter {
     // check to see if the bucket exists
     const projectId = await this._auth.getProjectId();
     const bucketName = `${projectId}-gcb-staging-bbq`;
-    const exists = await this.gcs.buckets.get({
-      bucket: bucketName
-    }).then(() => true, () => false);
+    const exists = await this.gcs.buckets.get({bucket: bucketName})
+                       .then(() => true, () => false);
 
     // if it does not exist, create it!
     if (!exists) {
       this.emit(ProgressEvent.CREATING_BUCKET);
-      await this.gcs.buckets.insert({
-        project: projectId,
-        requestBody: {
-          name: bucketName
-        }
-      });
+      await this.gcs.buckets.insert(
+          {project: projectId, requestBody: {name: bucketName}});
     }
 
     // Get the full list of files that don't match .gcloudignore
     const ignorePatterns = await this._getIgnoreRules();
-    const files = await globby('**/**', {ignore: ignorePatterns, cwd: this.sourcePath});
+    const files =
+        await globby('**/**', {ignore: ignorePatterns, cwd: this.sourcePath});
 
     // create a tar stream with all the files
-    const tarStream = tar.c(
-      {
-        gzip: true,
-        cwd: this.sourcePath
-      },
-      files
-    );
+    const tarStream = tar.c({gzip: true, cwd: this.sourcePath}, files);
 
     // There is a bizarre bug with node-tar where the stream it hands back
     // looks like a stream and talks like a stream, but it ain't a real
@@ -171,16 +153,10 @@ export class Builder extends EventEmitter {
     await this.gcs.objects.insert({
       bucket: bucketName,
       name: file,
-      media: {
-        mediaType: 'application/gzip',
-        body: bodyStream
-      }
+      media: {mediaType: 'application/gzip', body: bodyStream}
     });
 
-    return {
-      bucket: bucketName,
-      file
-    };
+    return {bucket: bucketName, file};
   }
 
   /**
