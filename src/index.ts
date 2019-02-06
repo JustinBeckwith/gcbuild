@@ -150,8 +150,14 @@ export class Builder extends EventEmitter {
     // if it does not exist, create it!
     if (!exists) {
       this.emit(ProgressEvent.CREATING_BUCKET, bucketName);
-      await this.gcs.buckets.insert(
-          {project: projectId, requestBody: {name: bucketName}});
+      await this.gcs.buckets.insert({
+        project: projectId,
+        requestBody: {
+          name: bucketName,
+          lifecycle:
+              {rule: [{action: {type: 'Delete'}, condition: {age: 1}}]}
+        }
+      });
     }
 
     // Get the full list of files that don't match .gcloudignore

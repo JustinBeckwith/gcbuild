@@ -57,7 +57,15 @@ describe('gcbuild', () => {
   describe('📦 pack & upload', () => {
     it('should create a GCS bucket if the expected one does not exist',
        async () => {
-         const builder = new Builder();
+         const scopes = [
+           mockBucketNotExists(), mockBucketCreate(), mockUpload(), mockBuild(),
+           mockPoll(), mockLogFetch()
+         ];
+         const sourcePath = path.resolve('test/fixtures');
+         const builder = new Builder({sourcePath});
+         const result = await builder.build();
+         scopes.forEach(s => s.done());
+         assert.ok(result.metadata);
        });
 
     it('should PUT the file to Google Cloud Storage', async () => {
@@ -107,6 +115,21 @@ describe('gcbuild', () => {
 function mockBucketExists() {
   return nock('https://www.googleapis.com')
       .get('/storage/v1/b/el-gato-gcb-staging-bbq')
+      .reply(200);
+}
+
+function mockBucketNotExists() {
+  return nock('https://www.googleapis.com')
+      .get('/storage/v1/b/el-gato-gcb-staging-bbq')
+      .reply(404);
+}
+
+function mockBucketCreate() {
+  return nock('https://www.googleapis.com')
+      .post('/storage/v1/b?project=el-gato', {
+        name: 'el-gato-gcb-staging-bbq',
+        lifecycle: {rule: [{action: {type: 'Delete'}, condition: {age: 1}}]}
+      })
       .reply(200);
 }
 
