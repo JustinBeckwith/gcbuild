@@ -2,7 +2,7 @@
 import * as meow from 'meow';
 import {Builder, BuildOptions, ProgressEvent} from './';
 import * as updateNotifier from 'update-notifier';
-import * as ora from 'ora';
+import ora from 'ora';
 import chalk from 'chalk';
 import * as util from 'util';
 import * as fs from 'fs';
