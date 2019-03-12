@@ -1,6 +1,6 @@
 import {EventEmitter} from 'events';
 import * as fs from 'fs';
-import * as globby from 'globby';
+import globby from 'globby';
 import {GoogleAuth, GoogleAuthOptions} from 'google-auth-library';
 import {cloudbuild_v1, google} from 'googleapis';
 import * as path from 'path';
