@@ -2,7 +2,7 @@ import {EventEmitter} from 'events';
 import * as fs from 'fs';
 import globby from 'globby';
 import {GoogleAuth, GoogleAuthOptions} from 'google-auth-library';
-import {cloudbuild_v1, google} from 'googleapis';
+import {cloudbuild_v1, google, storage_v1} from 'googleapis';
 import * as path from 'path';
 import {PassThrough} from 'stream';
 import * as tar from 'tar';
@@ -180,7 +180,7 @@ export class Builder extends EventEmitter {
       bucket: bucketName,
       name: file,
       media: {mediaType: 'application/gzip', body: bodyStream}
-    });
+    } as storage_v1.Params$Resource$Objects$Insert);
 
     return {bucket: bucketName, file};
   }
