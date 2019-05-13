@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import * as meow from 'meow';
-import {Builder, BuildOptions, ProgressEvent} from './';
+import { Builder, BuildOptions, ProgressEvent } from './';
 import * as updateNotifier from 'update-notifier';
 import ora from 'ora';
 import chalk from 'chalk';
@@ -9,10 +9,10 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 const pkg = require('../../package.json');
-updateNotifier({pkg}).notify();
+updateNotifier({ pkg }).notify();
 
 const cli = meow(
-    `
+  `
     Usage
       $ gcb [SOURCE] [--flags]
 
@@ -36,12 +36,13 @@ const cli = meow(
       $ gcb --config ../perfect.yaml --tag ohai123
       $ gcp containers/web
 `,
-    {
-      flags: {
-        config: {type: 'string'},
-        tag: {type: 'string'},
-      }
-    });
+  {
+    flags: {
+      config: { type: 'string' },
+      tag: { type: 'string' },
+    },
+  }
+);
 
 async function main() {
   if (cli.input.length > 1) {
@@ -62,32 +63,34 @@ async function main() {
   const spinny = ora('Initializing build...').start();
   const builder = new Builder(opts);
   builder
-      .on(ProgressEvent.CREATING_BUCKET,
-          (bucket) => {
-            spinny.stopAndPersist(
-                {symbol: '🌧', text: `Bucket '${bucket}' created.`});
-            spinny.start('Packing and uploading sources...');
-          })
-      .on(ProgressEvent.UPLOADING,
-          () => {
-            spinny.stopAndPersist({symbol: '📦', text: 'Source code packaged.'});
-            spinny.start('Uploading source...');
-          })
-      .on(ProgressEvent.BUILDING,
-          () => {
-            spinny.stopAndPersist(
-                {symbol: '🛸', text: 'Source uploaded to cloud.'});
-            spinny.start('Building container...');
-          })
-      .on(ProgressEvent.LOG,
-          (data) => {
-            console.error('\n\n' + chalk.gray(data));
-          })
-      .on(ProgressEvent.COMPLETE, () => {
-        const seconds = (Date.now() - start) / 1000;
-        spinny.stopAndPersist(
-            {symbol: '🚀', text: `Container built in ${seconds} seconds.`});
+    .on(ProgressEvent.CREATING_BUCKET, bucket => {
+      spinny.stopAndPersist({
+        symbol: '🌧',
+        text: `Bucket '${bucket}' created.`,
       });
+      spinny.start('Packing and uploading sources...');
+    })
+    .on(ProgressEvent.UPLOADING, () => {
+      spinny.stopAndPersist({ symbol: '📦', text: 'Source code packaged.' });
+      spinny.start('Uploading source...');
+    })
+    .on(ProgressEvent.BUILDING, () => {
+      spinny.stopAndPersist({
+        symbol: '🛸',
+        text: 'Source uploaded to cloud.',
+      });
+      spinny.start('Building container...');
+    })
+    .on(ProgressEvent.LOG, data => {
+      console.error('\n\n' + chalk.gray(data));
+    })
+    .on(ProgressEvent.COMPLETE, () => {
+      const seconds = (Date.now() - start) / 1000;
+      spinny.stopAndPersist({
+        symbol: '🚀',
+        text: `Container built in ${seconds} seconds.`,
+      });
+    });
   try {
     await builder.build();
   } catch (e) {
@@ -105,9 +108,9 @@ async function generateIgnoreFile(targetDir: string) {
   `);
   await new Promise((resolve, reject) => {
     fs.createReadStream(path.join(__dirname, '../../src/.gcloudignore'))
-        .pipe(fs.createWriteStream(path.join(targetDir, '.gcloudignore')))
-        .on('error', reject)
-        .on('close', resolve);
+      .pipe(fs.createWriteStream(path.join(targetDir, '.gcloudignore')))
+      .on('error', reject)
+      .on('close', resolve);
   });
 }
 
