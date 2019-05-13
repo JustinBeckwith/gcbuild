@@ -34,7 +34,6 @@
   "dependencies": {
     "chalk": "^2.4.2",
     "globby": "^9.0.0",
-    "google-auth-library": "^3.0.0",
     "googleapis": "^39.0.0",
     "js-yaml": "^3.12.1",
     "meow": "^5.0.0",
