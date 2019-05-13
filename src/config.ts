@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import {cloudbuild_v1} from 'googleapis';
+import { cloudbuild_v1 } from 'googleapis';
 import * as path from 'path';
 import * as util from 'util';
 
@@ -20,7 +20,8 @@ export async function getConfig(configPath: string) {
       break;
     default:
       throw new Error(
-          `The ${ext} extension is not supported.  Please pass yaml or json.`);
+        `The ${ext} extension is not supported.  Please pass yaml or json.`
+      );
   }
   return config;
 }
