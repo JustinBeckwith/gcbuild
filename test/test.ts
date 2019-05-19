@@ -5,7 +5,10 @@ import * as nock from 'nock';
 import * as path from 'path';
 import * as proxyquire from 'proxyquire';
 
+const assertRejects = require('assert-rejects');
+
 import { BuildError } from '../src';
+import { getConfig } from '../src/config';
 
 describe('gcbuild', () => {
   nock.disableNetConnect();
@@ -107,6 +110,28 @@ describe('gcbuild', () => {
         );
       }
       scopes.forEach(s => s.done());
+    });
+  });
+
+  describe('🌳 config', () => {
+    it('should find a Dockerfile if provided', async () => {
+      const config = await getConfig({
+        sourcePath: path.resolve('test/fixtures/docker'),
+        tag: 'taggy',
+        projectId: 'el-gato',
+      });
+      assert.strictEqual(config.steps![0].name, 'gcr.io/cloud-builders/docker');
+    });
+
+    it('should throw an error if an unexpected config path is provided', async () => {
+      await assertRejects(
+        getConfig({
+          sourcePath: path.resolve('test/fixtures/docker'),
+          configPath: path.resolve('test/fixtures/docker/index.js'),
+          projectId: 'el-gato',
+        }),
+        /extension is not supported/
+      );
     });
   });
 

@@ -6,9 +6,6 @@
 [![codecov](https://codecov.io/gh/JustinBeckwith/gcbuild/branch/master/graph/badge.svg)](https://codecov.io/gh/JustinBeckwith/gcbuild)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
-## Project status
-**Super duper experimental and like half done**.  Like really, don't use this yet unless you really know what you're doing.
-
 ## Installation
 ```sh
 $ npm install gcbuild
@@ -47,6 +44,9 @@ The tag to use with a "docker build" image creation.
 ```sh
 # Create an image for the current working directory.
 $ gcb
+
+# If there's a Dockerfile in the CWD, I can also specify a tag
+$ gcb --tag my-image-name
 
 # Use a build file not named `cloudbuild.yaml`
 $ gcb --config suchbuild.json
