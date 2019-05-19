@@ -5,6 +5,8 @@ import * as nock from 'nock';
 import * as path from 'path';
 import * as proxyquire from 'proxyquire';
 
+const assertRejects = require('assert-rejects');
+
 import { BuildError } from '../src';
 import { getConfig } from '../src/config';
 
@@ -122,7 +124,7 @@ describe('gcbuild', () => {
     });
 
     it('should throw an error if an unexpected config path is provided', async () => {
-      await assert.rejects(
+      await assertRejects(
         getConfig({
           sourcePath: path.resolve('test/fixtures/docker'),
           configPath: path.resolve('test/fixtures/docker/index.js'),
