@@ -42,16 +42,17 @@ export interface BuildOptions extends GoogleAuthOptions {
  */
 export class Builder extends EventEmitter {
   private sourcePath: string;
-  private configPath: string;
+  private configPath?: string;
+  private tag?: string;
   private _auth: GoogleAuth;
   private gcb = google.cloudbuild('v1');
   private gcs = google.storage('v1');
 
   constructor(options: BuildOptions = {}) {
     super();
+    this.tag = options.tag;
     this.sourcePath = options.sourcePath || process.cwd();
-    this.configPath =
-      options.configPath || path.join(this.sourcePath, 'cloudbuild.yaml');
+    this.configPath = options.configPath; // || path.join(this.sourcePath, 'cloudbuild.yaml');
     this._auth = new GoogleAuth(options);
   }
 
@@ -71,8 +72,14 @@ export class Builder extends EventEmitter {
     const projectId = await this._auth.getProjectId();
 
     // load configuration
-    const requestBody = await getConfig(this.configPath);
-    requestBody.source = { storageSource: { bucket, object: file } };
+    const requestBody = await getConfig({
+      configPath: this.configPath,
+      sourcePath: this.sourcePath,
+      projectId,
+      tag: this.tag,
+    });
+
+    requestBody!.source = { storageSource: { bucket, object: file } };
 
     // create the request to perform a build
     const res = await this.gcb.projects.builds.create({

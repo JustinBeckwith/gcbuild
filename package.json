@@ -13,6 +13,9 @@
     "build/src",
     "src/.gcloudignore"
   ],
+  "engines": {
+    "node": ">=8"
+  },
   "scripts": {
     "test": "c8 mocha build/test --require source-map-support/register --timeout 60000",
     "lint": "gts check",
