@@ -53,6 +53,7 @@ export class Builder extends EventEmitter {
     this.tag = options.tag;
     this.sourcePath = options.sourcePath || process.cwd();
     this.configPath = options.configPath; // || path.join(this.sourcePath, 'cloudbuild.yaml');
+    options.scopes = ['https://www.googleapis.com/auth/cloud-platform'];
     this._auth = new GoogleAuth(options);
   }
 
@@ -60,9 +61,7 @@ export class Builder extends EventEmitter {
    * Deploy the current application using the given opts.
    */
   async build(): Promise<BuildResult> {
-    const auth = await this._auth.getClient({
-      scopes: ['https://www.googleapis.com/auth/cloud-platform'],
-    });
+    const auth = await this._auth.getClient();
     google.options({ auth });
 
     this.emit(ProgressEvent.UPLOADING);
