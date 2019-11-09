@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import chalk from 'chalk';
+import chalk = require('chalk');
 import * as fs from 'fs';
 import * as nock from 'nock';
 import * as path from 'path';

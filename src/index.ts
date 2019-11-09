@@ -156,9 +156,10 @@ export class Builder extends EventEmitter {
     // check to see if the bucket exists
     const projectId = await this._auth.getProjectId();
     const bucketName = `${projectId}-gcb-staging-bbq`;
-    const exists = await this.gcs.buckets
-      .get({ bucket: bucketName })
-      .then(() => true, () => false);
+    const exists = await this.gcs.buckets.get({ bucket: bucketName }).then(
+      () => true,
+      () => false
+    );
 
     // if it does not exist, create it!
     if (!exists) {
