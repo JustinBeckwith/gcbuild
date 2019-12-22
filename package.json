@@ -54,7 +54,7 @@
     "@types/tar": "^4.0.3",
     "@types/update-notifier": "^2.5.0",
     "assert-rejects": "^1.0.0",
-    "c8": "^6.0.0",
+    "c8": "^7.0.0",
     "codecov": "^3.5.0",
     "gts": "^1.1.0",
     "mocha": "^6.2.0",
