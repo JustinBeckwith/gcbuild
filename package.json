@@ -14,7 +14,7 @@
     "src/.gcloudignore"
   ],
   "engines": {
-    "node": ">=8"
+    "node": ">=10"
   },
   "scripts": {
     "test": "c8 mocha build/test --require source-map-support/register --timeout 60000",

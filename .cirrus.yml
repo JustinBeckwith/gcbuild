@@ -1,5 +1,5 @@
 container:
-  image: node:10
+  image: node:12
 
 lint_task:
   install_script: npm install
@@ -8,9 +8,9 @@ lint_task:
 test_task:
   container:
     matrix:
-      image: node:11
+      image: node:13
+      image: node:12
       image: node:10
-      image: node:8
   install_script: npm install
   test_script: npm test
 
