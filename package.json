@@ -35,7 +35,7 @@
   "author": "Justin Beckwith <justin.beckwith@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "chalk": "^3.0.0",
+    "chalk": "^4.0.0",
     "globby": "^11.0.0",
     "googleapis": "^47.0.0",
     "js-yaml": "^3.13.1",
