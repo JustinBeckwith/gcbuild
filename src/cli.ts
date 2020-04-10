@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import * as meow from 'meow';
-import { Builder, BuildOptions, ProgressEvent } from './';
+import {Builder, BuildOptions, ProgressEvent} from './';
 import * as updateNotifier from 'update-notifier';
 import ora = require('ora');
 import chalk = require('chalk');
@@ -8,8 +8,9 @@ import * as util from 'util';
 import * as fs from 'fs';
 import * as path from 'path';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../../package.json');
-updateNotifier({ pkg }).notify();
+updateNotifier({pkg}).notify();
 
 const cli = meow(
   `
@@ -38,8 +39,8 @@ const cli = meow(
 `,
   {
     flags: {
-      config: { type: 'string' },
-      tag: { type: 'string' },
+      config: {type: 'string'},
+      tag: {type: 'string'},
     },
   }
 );
@@ -71,7 +72,7 @@ async function main() {
       spinny.start('Packing and uploading sources...');
     })
     .on(ProgressEvent.UPLOADING, () => {
-      spinny.stopAndPersist({ symbol: '📦', text: 'Source code packaged.' });
+      spinny.stopAndPersist({symbol: '📦', text: 'Source code packaged.'});
       spinny.start('Uploading source...');
     })
     .on(ProgressEvent.BUILDING, () => {
@@ -96,6 +97,7 @@ async function main() {
   } catch (e) {
     console.error(e);
     spinny.fail(e.message);
+    // eslint-disable-next-line no-process-exit
     process.exit(1);
   }
 }
