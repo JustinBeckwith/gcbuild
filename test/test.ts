@@ -153,19 +153,19 @@ describe('gcbuild', () => {
 });
 
 function mockBucketExists() {
-  return nock('https://www.googleapis.com')
+  return nock('https://storage.googleapis.com')
     .get('/storage/v1/b/el-gato-gcb-staging-bbq')
     .reply(200);
 }
 
 function mockBucketNotExists() {
-  return nock('https://www.googleapis.com')
+  return nock('https://storage.googleapis.com')
     .get('/storage/v1/b/el-gato-gcb-staging-bbq')
     .reply(404);
 }
 
 function mockBucketCreate() {
-  return nock('https://www.googleapis.com')
+  return nock('https://storage.googleapis.com')
     .post('/storage/v1/b?project=el-gato', {
       name: 'el-gato-gcb-staging-bbq',
       lifecycle: {
@@ -176,7 +176,7 @@ function mockBucketCreate() {
 }
 
 function mockUpload() {
-  return nock('https://www.googleapis.com')
+  return nock('https://storage.googleapis.com')
     .post(url => {
       return url.includes('/storage/v1/b/el-gato-gcb-staging-bbq/o?name=');
     })
@@ -199,7 +199,7 @@ function mockPoll() {
 }
 
 function mockLogFetch() {
-  return nock('https://www.googleapis.com')
+  return nock('https://storage.googleapis.com')
     .get('/storage/v1/b/not-a-bucket/o/log-not-an-id.txt?alt=media')
     .reply(200, '🌳');
 }
