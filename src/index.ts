@@ -1,14 +1,15 @@
-import { EventEmitter } from 'events';
+import {EventEmitter} from 'events';
 import * as fs from 'fs';
 import globby = require('globby');
-import { GoogleAuth, GoogleAuthOptions } from 'google-auth-library';
-import { cloudbuild_v1, google, storage_v1 } from 'googleapis';
+// eslint-disable-next-line node/no-extraneous-import
+import {GoogleAuth, GoogleAuthOptions} from 'google-auth-library';
+import {cloudbuild_v1, google, storage_v1} from 'googleapis';
 import * as path from 'path';
-import { PassThrough } from 'stream';
+import {PassThrough} from 'stream';
 import * as tar from 'tar';
-import { promisify } from 'util';
+import {promisify} from 'util';
 
-import { getConfig } from './config';
+import {getConfig} from './config';
 
 const readFile = promisify(fs.readFile);
 
@@ -62,10 +63,10 @@ export class Builder extends EventEmitter {
    */
   async build(): Promise<BuildResult> {
     const auth = await this._auth.getClient();
-    google.options({ auth });
+    google.options({auth});
 
     this.emit(ProgressEvent.UPLOADING);
-    const { bucket, file } = await this.upload();
+    const {bucket, file} = await this.upload();
 
     this.emit(ProgressEvent.BUILDING);
     const projectId = await this._auth.getProjectId();
@@ -78,7 +79,7 @@ export class Builder extends EventEmitter {
       tag: this.tag,
     });
 
-    requestBody!.source = { storageSource: { bucket, object: file } };
+    requestBody!.source = {storageSource: {bucket, object: file}};
 
     // create the request to perform a build
     const res = await this.gcb.projects.builds.create({
@@ -95,7 +96,9 @@ export class Builder extends EventEmitter {
       let log: string;
       try {
         log = await this.fetchLog(result);
-      } catch (e) {}
+      } catch (e) {
+        // 🤷‍♂️
+      }
       (e as BuildError).log = log!;
       throw e;
     }
@@ -133,7 +136,7 @@ export class Builder extends EventEmitter {
    * @param name Fully qualified name of the operation.
    */
   private async poll(name: string) {
-    const res = await this.gcb.operations.get({ name });
+    const res = await this.gcb.operations.get({name});
     const operation = res.data;
     if (operation.error) {
       const message = JSON.stringify(operation.error);
@@ -156,7 +159,7 @@ export class Builder extends EventEmitter {
     // check to see if the bucket exists
     const projectId = await this._auth.getProjectId();
     const bucketName = `${projectId}-gcb-staging-bbq`;
-    const exists = await this.gcs.buckets.get({ bucket: bucketName }).then(
+    const exists = await this.gcs.buckets.get({bucket: bucketName}).then(
       () => true,
       () => false
     );
@@ -169,7 +172,7 @@ export class Builder extends EventEmitter {
         requestBody: {
           name: bucketName,
           lifecycle: {
-            rule: [{ action: { type: 'Delete' }, condition: { age: 1 } }],
+            rule: [{action: {type: 'Delete'}, condition: {age: 1}}],
           },
         },
       });
@@ -183,7 +186,7 @@ export class Builder extends EventEmitter {
     });
 
     // create a tar stream with all the files
-    const tarStream = tar.c({ gzip: true, cwd: this.sourcePath }, files);
+    const tarStream = tar.c({gzip: true, cwd: this.sourcePath}, files);
 
     // There is a bizarre bug with node-tar where the stream it hands back
     // looks like a stream and talks like a stream, but it ain't a real
@@ -196,10 +199,10 @@ export class Builder extends EventEmitter {
     await this.gcs.objects.insert({
       bucket: bucketName,
       name: file,
-      media: { mediaType: 'application/gzip', body: bodyStream },
+      media: {mediaType: 'application/gzip', body: bodyStream},
     } as storage_v1.Params$Resource$Objects$Insert);
 
-    return { bucket: bucketName, file };
+    return {bucket: bucketName, file};
   }
 
   /**
@@ -215,7 +218,9 @@ export class Builder extends EventEmitter {
       ignoreRules = contents.split('\n').filter(line => {
         return !line.startsWith('#') && line.trim() !== '';
       });
-    } catch (e) {}
+    } catch (e) {
+      // 🤷‍♂️
+    }
     return ignoreRules;
   }
 }
@@ -228,7 +233,7 @@ export async function build(options: BuildOptions) {
 export interface BuildResult {
   name: string;
   log: string;
-  metadata: { build: cloudbuild_v1.Schema$Build };
+  metadata: {build: cloudbuild_v1.Schema$Build};
 }
 
 export interface BuildError extends Error {

@@ -1,21 +1,20 @@
 import * as assert from 'assert';
+import {describe, it, afterEach} from 'mocha';
 import chalk = require('chalk');
 import * as fs from 'fs';
 import * as nock from 'nock';
 import * as path from 'path';
 import * as proxyquire from 'proxyquire';
 
-const assertRejects = require('assert-rejects');
-
-import { BuildError } from '../src';
-import { getConfig } from '../src/config';
+import {BuildError} from '../src';
+import {getConfig} from '../src/config';
 
 describe('gcbuild', () => {
   nock.disableNetConnect();
 
   afterEach(() => nock.cleanAll());
 
-  const { Builder } = proxyquire('../src/index', {
+  const {Builder} = proxyquire('../src/index', {
     'google-auth-library': {
       GoogleAuth: class {
         async getProjectId() {
@@ -72,14 +71,14 @@ describe('gcbuild', () => {
         mockLogFetch(),
       ];
       const sourcePath = path.resolve('test/fixtures');
-      const builder = new Builder({ sourcePath });
+      const builder = new Builder({sourcePath});
       const result = await builder.build();
       scopes.forEach(s => s.done());
       assert.ok(result.metadata);
     });
 
     it('should PUT the file to Google Cloud Storage', async () => {
-      const builder = new Builder();
+      new Builder();
     });
   });
 
@@ -93,7 +92,7 @@ describe('gcbuild', () => {
         mockLogFetch(),
       ];
       const sourcePath = path.resolve('test/fixtures');
-      const builder = new Builder({ sourcePath });
+      const builder = new Builder({sourcePath});
       try {
         await builder.build();
         assert.fail('Expected to throw.');
@@ -124,7 +123,7 @@ describe('gcbuild', () => {
     });
 
     it('should throw an error if an unexpected config path is provided', async () => {
-      await assertRejects(
+      await assert.rejects(
         getConfig({
           sourcePath: path.resolve('test/fixtures/docker'),
           configPath: path.resolve('test/fixtures/docker/index.js'),
@@ -145,7 +144,7 @@ describe('gcbuild', () => {
         mockLogFetch(),
       ];
       const sourcePath = path.resolve('test/fixtures');
-      const builder = new Builder({ sourcePath });
+      const builder = new Builder({sourcePath});
       const result = await builder.build();
       scopes.forEach(s => s.done());
       assert.ok(result.metadata);
@@ -170,7 +169,7 @@ function mockBucketCreate() {
     .post('/storage/v1/b?project=el-gato', {
       name: 'el-gato-gcb-staging-bbq',
       lifecycle: {
-        rule: [{ action: { type: 'Delete' }, condition: { age: 1 } }],
+        rule: [{action: {type: 'Delete'}, condition: {age: 1}}],
       },
     })
     .reply(200);
@@ -189,14 +188,14 @@ function mockBuild() {
     .post('/v1/projects/el-gato/builds')
     .reply(200, {
       name: 'not-a-real-operation',
-      metadata: { build: { logsBucket: 'gs://not-a-bucket', id: 'not-an-id' } },
+      metadata: {build: {logsBucket: 'gs://not-a-bucket', id: 'not-an-id'}},
     });
 }
 
 function mockPoll() {
   return nock('https://cloudbuild.googleapis.com')
     .get('/v1/not-a-real-operation')
-    .reply(200, { done: true });
+    .reply(200, {done: true});
 }
 
 function mockLogFetch() {
@@ -208,5 +207,5 @@ function mockLogFetch() {
 function mockPollError() {
   return nock('https://cloudbuild.googleapis.com')
     .get('/v1/not-a-real-operation')
-    .reply(200, { error: '💩' });
+    .reply(200, {error: '💩'});
 }

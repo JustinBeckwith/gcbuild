@@ -1,8 +1,7 @@
 import * as fs from 'fs';
-import { cloudbuild_v1 } from 'googleapis';
+import {cloudbuild_v1} from 'googleapis';
 import * as path from 'path';
-import { promisify } from 'util';
-import * as util from 'util';
+import {promisify} from 'util';
 
 import yaml = require('js-yaml');
 
