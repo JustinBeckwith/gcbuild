@@ -61,7 +61,9 @@ export async function getConfig(opts: GetConfigOptions) {
         config = JSON.parse(configFileContents);
         break;
       case '.yaml':
-        config = await yaml.safeLoad(configFileContents);
+        config = (await yaml.safeLoad(
+          configFileContents
+        )) as cloudbuild_v1.Schema$Build;
         break;
       default:
         throw new Error(
