@@ -35,7 +35,7 @@
   "license": "MIT",
   "dependencies": {
     "chalk": "^4.0.0",
-    "globby": "^11.0.0",
+    "globby": "^12.0.0",
     "googleapis": "^91.0.0",
     "js-yaml": "^4.0.0",
     "meow": "^9.0.0",
