@@ -1,17 +1,14 @@
 import {EventEmitter} from 'events';
-import * as fs from 'fs';
-import globby = require('globby');
+import fs from 'fs';
+import {globby} from 'globby';
 // eslint-disable-next-line node/no-extraneous-import
 import {GoogleAuth, GoogleAuthOptions} from 'google-auth-library';
 import {cloudbuild_v1, google, storage_v1} from 'googleapis';
-import * as path from 'path';
+import path from 'path';
 import {PassThrough} from 'stream';
-import * as tar from 'tar';
-import {promisify} from 'util';
+import tar from 'tar';
 
-import {getConfig} from './config';
-
-const readFile = promisify(fs.readFile);
+import {getConfig} from './config.js';
 
 export enum ProgressEvent {
   CREATING_BUCKET = 'CREATING_BUCKET',
@@ -42,10 +39,11 @@ export interface BuildOptions extends GoogleAuthOptions {
  * Class that provides the `deploy` method.
  */
 export class Builder extends EventEmitter {
+  public readonly auth: GoogleAuth;
+
   private sourcePath: string;
   private configPath?: string;
   private tag?: string;
-  private _auth: GoogleAuth;
   private gcb = google.cloudbuild('v1');
   private gcs = google.storage('v1');
 
@@ -55,21 +53,21 @@ export class Builder extends EventEmitter {
     this.sourcePath = options.sourcePath || process.cwd();
     this.configPath = options.configPath; // || path.join(this.sourcePath, 'cloudbuild.yaml');
     options.scopes = ['https://www.googleapis.com/auth/cloud-platform'];
-    this._auth = new GoogleAuth(options);
+    this.auth = new GoogleAuth(options);
   }
 
   /**
    * Deploy the current application using the given opts.
    */
   async build(): Promise<BuildResult> {
-    const auth = await this._auth.getClient();
+    const auth = await this.auth.getClient();
     google.options({auth});
 
     this.emit(ProgressEvent.UPLOADING);
     const {bucket, file} = await this.upload();
 
     this.emit(ProgressEvent.BUILDING);
-    const projectId = await this._auth.getProjectId();
+    const projectId = await this.auth.getProjectId();
 
     // load configuration
     const requestBody = await getConfig({
@@ -157,7 +155,7 @@ export class Builder extends EventEmitter {
    */
   private async upload() {
     // check to see if the bucket exists
-    const projectId = await this._auth.getProjectId();
+    const projectId = await this.auth.getProjectId();
     const bucketName = `${projectId}-gcb-staging-bbq`;
     const exists = await this.gcs.buckets.get({bucket: bucketName}).then(
       () => true,
@@ -208,13 +206,12 @@ export class Builder extends EventEmitter {
   /**
    * Look in the CWD for a `.gcloudignore` file.  If one is present, parse it,
    * and return the ignore rules as an array of strings.
-   * @private
    */
-  private async getIgnoreRules() {
+  public async getIgnoreRules() {
     const ignoreFile = path.join(this.sourcePath, '.gcloudignore');
     let ignoreRules = new Array<string>();
     try {
-      const contents = await readFile(ignoreFile, 'utf8');
+      const contents = await fs.promises.readFile(ignoreFile, 'utf8');
       ignoreRules = contents.split('\n').filter(line => {
         return !line.startsWith('#') && line.trim() !== '';
       });
