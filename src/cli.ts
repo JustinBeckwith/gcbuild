@@ -1,15 +1,18 @@
 #!/usr/bin/env node
 import meow from 'meow';
-import {Builder, BuildOptions, ProgressEvent} from './index.js';
 import updateNotifier from 'update-notifier';
 import ora from 'ora';
 import chalk from 'chalk';
 import util from 'util';
 import fs from 'fs';
 import path from 'path';
+import {URL} from 'url';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const pkg = require('../../package.json');
+import {Builder, BuildOptions, ProgressEvent} from './index.js';
+
+const pkg = JSON.parse(
+  fs.readFileSync(new URL('../../package.json', import.meta.url), 'utf-8')
+);
 updateNotifier({pkg}).notify();
 
 const cli = meow(

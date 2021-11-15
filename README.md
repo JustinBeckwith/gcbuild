@@ -59,7 +59,7 @@ $ gcb ~/Code/verydocker
 You can also use this as a regular old API.
 
 ```js
-const {build} = require('gcb');
+import {build} from 'gcb';
 
 async function main() {
   await build({
