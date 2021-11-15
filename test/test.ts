@@ -1,34 +1,21 @@
-import * as assert from 'assert';
+import assert from 'assert';
 import {describe, it, afterEach} from 'mocha';
-import chalk = require('chalk');
-import * as fs from 'fs';
-import * as nock from 'nock';
-import * as path from 'path';
-import * as proxyquire from 'proxyquire';
+import chalk from 'chalk';
+import fs from 'fs';
+import nock from 'nock';
+import path from 'path';
+import sinon from 'sinon';
+import {GaxiosOptions, request} from 'gaxios';
 
-import {BuildError} from '../src';
-import {getConfig} from '../src/config';
+import {Builder, BuildError} from '../src/index.js';
+import {getConfig} from '../src/config.js';
 
 describe('gcbuild', () => {
   nock.disableNetConnect();
 
-  afterEach(() => nock.cleanAll());
-
-  const {Builder} = proxyquire('../src/index', {
-    'google-auth-library': {
-      GoogleAuth: class {
-        async getProjectId() {
-          return 'el-gato';
-        }
-        async getClient() {
-          return class {
-            async request() {
-              return {};
-            }
-          };
-        }
-      },
-    },
+  afterEach(() => {
+    nock.cleanAll();
+    sinon.restore();
   });
 
   describe('🙈 ignore rules', () => {
@@ -72,6 +59,13 @@ describe('gcbuild', () => {
       ];
       const sourcePath = path.resolve('test/fixtures');
       const builder = new Builder({sourcePath});
+      sinon.stub(builder.auth, 'getProjectId').resolves('el-gato');
+      sinon.stub(builder.auth, 'getClient').resolves({
+        request: async (options: GaxiosOptions) => {
+          return request(options);
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
       const result = await builder.build();
       scopes.forEach(s => s.done());
       assert.ok(result.metadata);
@@ -93,6 +87,13 @@ describe('gcbuild', () => {
       ];
       const sourcePath = path.resolve('test/fixtures');
       const builder = new Builder({sourcePath});
+      sinon.stub(builder.auth, 'getProjectId').resolves('el-gato');
+      sinon.stub(builder.auth, 'getClient').resolves({
+        request: async (options: GaxiosOptions) => {
+          return request(options);
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
       try {
         await builder.build();
         assert.fail('Expected to throw.');
@@ -145,6 +146,13 @@ describe('gcbuild', () => {
       ];
       const sourcePath = path.resolve('test/fixtures');
       const builder = new Builder({sourcePath});
+      sinon.stub(builder.auth, 'getProjectId').resolves('el-gato');
+      sinon.stub(builder.auth, 'getClient').resolves({
+        request: async (options: GaxiosOptions) => {
+          return request(options);
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
       const result = await builder.build();
       scopes.forEach(s => s.done());
       assert.ok(result.metadata);

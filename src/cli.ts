@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-import * as meow from 'meow';
-import {Builder, BuildOptions, ProgressEvent} from './';
-import * as updateNotifier from 'update-notifier';
-import ora = require('ora');
-import chalk = require('chalk');
-import * as util from 'util';
-import * as fs from 'fs';
-import * as path from 'path';
+import meow from 'meow';
+import {Builder, BuildOptions, ProgressEvent} from './index.js';
+import updateNotifier from 'update-notifier';
+import ora from 'ora';
+import chalk from 'chalk';
+import util from 'util';
+import fs from 'fs';
+import path from 'path';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../../package.json');
@@ -38,6 +38,7 @@ const cli = meow(
       $ gcp containers/web
 `,
   {
+    importMeta: import.meta,
     flags: {
       config: {type: 'string'},
       tag: {type: 'string'},
@@ -95,8 +96,9 @@ async function main() {
   try {
     await builder.build();
   } catch (e) {
-    console.error(e);
-    spinny.fail(e.message);
+    const err = e as Error;
+    console.error(err);
+    spinny.fail(err.message);
     // eslint-disable-next-line no-process-exit
     process.exit(1);
   }

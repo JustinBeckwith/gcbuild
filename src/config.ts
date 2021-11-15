@@ -1,12 +1,7 @@
-import * as fs from 'fs';
+import fs from 'fs';
 import {cloudbuild_v1} from 'googleapis';
-import * as path from 'path';
-import {promisify} from 'util';
-
-import yaml = require('js-yaml');
-
-const readFile = promisify(fs.readFile);
-const access = promisify(fs.access);
+import path from 'path';
+import yaml from 'js-yaml';
 
 export interface GetConfigOptions {
   configPath?: string;
@@ -54,7 +49,10 @@ export async function getConfig(opts: GetConfigOptions) {
       images: [`gcr.io/${opts.projectId}/${opts.tag}`],
     };
   } else {
-    const configFileContents = await readFile(opts.configPath, 'utf8');
+    const configFileContents = await fs.promises.readFile(
+      opts.configPath,
+      'utf8'
+    );
     const ext = path.extname(opts.configPath);
     switch (ext) {
       case '.json':
@@ -80,7 +78,7 @@ export async function getConfig(opts: GetConfigOptions) {
  */
 async function exists(file: string) {
   try {
-    await access(file, fs.constants.F_OK);
+    await fs.promises.access(file, fs.constants.F_OK);
     return true;
   } catch (e) {
     return false;
