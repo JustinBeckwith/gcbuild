@@ -42,7 +42,7 @@
     "meow": "^10.1.1",
     "ora": "^6.0.1",
     "tar": "^6.1.11",
-    "update-notifier": "^5.1.0"
+    "update-notifier": "^6.0.0"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.4",
@@ -51,7 +51,7 @@
     "@types/node": "^16.11.7",
     "@types/sinon": "^10.0.6",
     "@types/tar": "^6.1.0",
-    "@types/update-notifier": "^5.1.0",
+    "@types/update-notifier": "^6.0.0",
     "c8": "^7.10.0",
     "gaxios": "^5.0.0",
     "gts": "^3.1.0",
