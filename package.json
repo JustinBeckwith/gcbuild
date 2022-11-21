@@ -37,7 +37,7 @@
   "dependencies": {
     "chalk": "^5.0.0",
     "globby": "^13.0.0",
-    "googleapis": "^103.0.0",
+    "googleapis": "^109.0.0",
     "js-yaml": "^4.1.0",
     "meow": "^11.0.0",
     "ora": "^6.0.1",
