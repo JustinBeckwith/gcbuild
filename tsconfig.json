@@ -1,9 +1,9 @@
 {
-  "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
-    "rootDir": ".",
+    "strict": true,
+    "target": "ES2022",
     "outDir": "build",
-    "module": "ES2020",
+    "module": "ES2022",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true
   },
