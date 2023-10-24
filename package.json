@@ -47,7 +47,7 @@
   "devDependencies": {
     "@types/js-yaml": "^4.0.4",
     "@types/mocha": "^10.0.0",
-    "@types/node": "^18.0.0",
+    "@types/node": "^20.0.0",
     "@types/sinon": "^10.0.6",
     "@types/tar": "^6.1.0",
     "@types/update-notifier": "^6.0.1",
