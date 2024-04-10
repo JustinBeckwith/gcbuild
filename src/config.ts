@@ -37,9 +37,7 @@ export async function getConfig(options: GetConfigOptions) {
 
 	let config: cloudbuild_v1.Schema$Build;
 	if (path.basename(options.configPath) === 'Dockerfile') {
-		if (!options.tag) {
-			options.tag = path.basename(options.sourcePath);
-		}
+		options.tag ||= path.basename(options.sourcePath);
 
 		config = {
 			steps: [
@@ -60,8 +58,8 @@ export async function getConfig(options: GetConfigOptions) {
 			options.configPath,
 			'utf8',
 		);
-		const ext = path.extname(options.configPath);
-		switch (ext) {
+		const extension = path.extname(options.configPath);
+		switch (extension) {
 			case '.json': {
 				config = JSON.parse(configFileContents) as cloudbuild_v1.Schema$Build;
 				break;
@@ -76,7 +74,7 @@ export async function getConfig(options: GetConfigOptions) {
 
 			default: {
 				throw new Error(
-					`The ${ext} extension is not supported.  Please pass yaml or json.`,
+					`The ${extension} extension is not supported.  Please pass yaml or json.`,
 				);
 			}
 		}
