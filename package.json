@@ -19,12 +19,12 @@
   },
   "scripts": {
     "test": "c8 mocha build/test",
-    "lint": "xo --prettier",
     "compile": "tsc -p .",
-    "fix": "xo --prettier --fix",
     "prepare": "npm run compile",
     "pretest": "npm run compile",
-    "watch": "tsc -p . --watch"
+    "watch": "tsc -p . --watch",
+    "fix": "biome check --write .",
+    "lint": "biome check ."
   },
   "keywords": [
     "google",
@@ -45,6 +45,7 @@
     "update-notifier": "^7.0.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.8.3",
     "@types/js-yaml": "^4.0.4",
     "@types/mocha": "^10.0.0",
     "@types/node": "^20.0.0",
@@ -57,8 +58,7 @@
     "nock": "^13.2.1",
     "semantic-release": "^24.0.0",
     "sinon": "^18.0.0",
-    "typescript": "~5.5.0",
-    "xo": "^0.58.0"
+    "typescript": "~5.5.0"
   },
   "c8": {
     "exclude": [

@@ -1,12 +1,12 @@
-import {EventEmitter} from 'node:events';
+import { EventEmitter } from 'node:events';
 import fs from 'node:fs';
 import path from 'node:path';
-import {PassThrough} from 'node:stream';
 import process from 'node:process';
-import {globby} from 'globby';
-import {type cloudbuild_v1, google, type storage_v1, Auth} from 'googleapis';
+import { PassThrough } from 'node:stream';
+import { globby } from 'globby';
+import { Auth, type cloudbuild_v1, google, type storage_v1 } from 'googleapis';
 import tar from 'tar';
-import {getConfig} from './config.js';
+import { getConfig } from './config.js';
 
 export enum ProgressEvent {
 	CREATING_BUCKET = 'CREATING_BUCKET',
@@ -36,7 +36,6 @@ export type BuildOptions = {
 /**
  * Class that provides the `deploy` method.
  */
-// eslint-disable-next-line unicorn/prefer-event-target
 export class Builder extends EventEmitter {
 	public readonly auth: Auth.GoogleAuth;
 
@@ -49,7 +48,6 @@ export class Builder extends EventEmitter {
 	constructor(options: BuildOptions = {}) {
 		super();
 		this.tag = options.tag;
-		// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
 		this.sourcePath = options.sourcePath || process.cwd();
 		this.configPath = options.configPath; // || path.join(this.sourcePath, 'cloudbuild.yaml');
 		options.scopes = ['https://www.googleapis.com/auth/cloud-platform'];
@@ -61,10 +59,10 @@ export class Builder extends EventEmitter {
 	 */
 	async build(): Promise<BuildResult> {
 		const auth = (await this.auth.getClient()) as Auth.Compute;
-		google.options({auth});
+		google.options({ auth });
 
 		this.emit(ProgressEvent.UPLOADING);
-		const {bucket, file} = await this.upload();
+		const { bucket, file } = await this.upload();
 
 		this.emit(ProgressEvent.BUILDING);
 		const projectId = await this.auth.getProjectId();
@@ -77,7 +75,7 @@ export class Builder extends EventEmitter {
 			tag: this.tag,
 		});
 
-		requestBody.source = {storageSource: {bucket, object: file}};
+		requestBody.source = { storageSource: { bucket, object: file } };
 
 		// Create the request to perform a build
 		const response = await this.gcb.projects.builds.create({
@@ -98,6 +96,7 @@ export class Builder extends EventEmitter {
 				// 🤷‍♂️
 			}
 
+			// biome-ignore lint/style/noNonNullAssertion: <explanation>
 			(error as BuildError).log = log!;
 			throw error;
 		}
@@ -135,7 +134,8 @@ export class Builder extends EventEmitter {
 	 * @param result The BuildResult returned from the create operation
 	 */
 	private async fetchLog(result: BuildResult): Promise<string> {
-		const {build} = result.metadata;
+		const { build } = result.metadata;
+		// biome-ignore lint/style/noNonNullAssertion: <explanation>
 		const logsBucket = build.logsBucket!.split('gs://').find(Boolean);
 		const logFilename = `log-${build.id}.txt`;
 		const logResponse = await this.gcs.objects.get({
@@ -153,7 +153,7 @@ export class Builder extends EventEmitter {
 	 * @param name Fully qualified name of the operation.
 	 */
 	private async poll(name: string) {
-		const response = await this.gcb.operations.get({name});
+		const response = await this.gcb.operations.get({ name });
 		const operation = response.data;
 		if (operation.error) {
 			const message = JSON.stringify(operation.error);
@@ -180,7 +180,7 @@ export class Builder extends EventEmitter {
 		// Check to see if the bucket exists
 		const projectId = await this.auth.getProjectId();
 		const bucketName = `${projectId}-gcb-staging-bbq`;
-		const exists = await this.gcs.buckets.get({bucket: bucketName}).then(
+		const exists = await this.gcs.buckets.get({ bucket: bucketName }).then(
 			() => true,
 			() => false,
 		);
@@ -193,7 +193,7 @@ export class Builder extends EventEmitter {
 				requestBody: {
 					name: bucketName,
 					lifecycle: {
-						rule: [{action: {type: 'Delete'}, condition: {age: 1}}],
+						rule: [{ action: { type: 'Delete' }, condition: { age: 1 } }],
 					},
 				},
 			});
@@ -207,7 +207,7 @@ export class Builder extends EventEmitter {
 		});
 
 		// Create a tar stream with all the files
-		const tarStream = tar.c({gzip: true, cwd: this.sourcePath}, files);
+		const tarStream = tar.c({ gzip: true, cwd: this.sourcePath }, files);
 
 		// There is a bizarre bug with node-tar where the stream it hands back
 		// looks like a stream and talks like a stream, but it ain't a real
@@ -216,14 +216,14 @@ export class Builder extends EventEmitter {
 		tarStream.pipe(bodyStream);
 
 		// Upload the object via stream to GCS
-		const file = Date.now().toString() + '.tar.gz';
+		const file = `${Date.now().toString()}.tar.gz`;
 		await this.gcs.objects.insert({
 			bucket: bucketName,
 			name: file,
-			media: {mediaType: 'application/gzip', body: bodyStream},
+			media: { mediaType: 'application/gzip', body: bodyStream },
 		} as storage_v1.Params$Resource$Objects$Insert);
 
-		return {bucket: bucketName, file};
+		return { bucket: bucketName, file };
 	}
 }
 
@@ -235,7 +235,7 @@ export async function build(options: BuildOptions) {
 export type BuildResult = {
 	name: string;
 	log: string;
-	metadata: {build: cloudbuild_v1.Schema$Build};
+	metadata: { build: cloudbuild_v1.Schema$Build };
 };
 
 export type BuildError = {

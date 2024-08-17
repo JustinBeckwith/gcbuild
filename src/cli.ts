@@ -1,18 +1,18 @@
 #!/usr/bin/env node
-import util from 'node:util';
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
-import meow from 'meow';
-import updateNotifier, {type Package} from 'update-notifier';
-import ora from 'ora';
+import util from 'node:util';
 import chalk from 'chalk';
-import {Builder, type BuildOptions, ProgressEvent} from './index.js';
+import meow from 'meow';
+import ora from 'ora';
+import updateNotifier, { type Package } from 'update-notifier';
+import { type BuildOptions, Builder, ProgressEvent } from './index.js';
 
 const package_ = JSON.parse(
 	fs.readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
 ) as Package;
-updateNotifier({pkg: package_}).notify();
+updateNotifier({ pkg: package_ }).notify();
 
 const cli = meow(
 	`
@@ -42,8 +42,8 @@ const cli = meow(
 	{
 		importMeta: import.meta,
 		flags: {
-			config: {type: 'string'},
-			tag: {type: 'string'},
+			config: { type: 'string' },
+			tag: { type: 'string' },
 		},
 	},
 );
@@ -77,7 +77,7 @@ async function main() {
 			spinny.start('Packing and uploading sources...');
 		})
 		.on(ProgressEvent.UPLOADING, () => {
-			spinny.stopAndPersist({symbol: '📦', text: 'Source code packaged.'});
+			spinny.stopAndPersist({ symbol: '📦', text: 'Source code packaged.' });
 			spinny.start('Uploading source...');
 		})
 		.on(ProgressEvent.BUILDING, () => {
@@ -88,7 +88,7 @@ async function main() {
 			spinny.start('Building container...');
 		})
 		.on(ProgressEvent.LOG, (data) => {
-			console.error('\n\n' + chalk.gray(data));
+			console.error(`\n\n${chalk.gray(data)}`);
 		})
 		.on(ProgressEvent.COMPLETE, () => {
 			const seconds = (Date.now() - start) / 1000;
@@ -115,7 +115,6 @@ async function generateIgnoreFile(targetDirectory: string) {
        in your build. It works just like a .gitignore file 💜
   `);
 	await new Promise((resolve, reject) => {
-		// eslint-disable-next-line unicorn/prefer-module
 		fs.createReadStream(path.join(__dirname, '../../src/.gcloudignore'))
 			.pipe(fs.createWriteStream(path.join(targetDirectory, '.gcloudignore')))
 			.on('error', reject)
