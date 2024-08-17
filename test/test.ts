@@ -1,13 +1,13 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
-import {describe, it, afterEach} from 'mocha';
 import chalk from 'chalk';
+import { type GaxiosOptions, request } from 'gaxios';
+import { afterEach, describe, it } from 'mocha';
 import nock from 'nock';
 import * as sinon from 'sinon';
-import {type GaxiosOptions, request} from 'gaxios';
-import {Builder, type BuildError} from '../src/index.js';
-import {getConfig} from '../src/config.js';
+import { getConfig } from '../src/config.js';
+import { type BuildError, Builder } from '../src/index.js';
 
 describe('gcbuild', () => {
 	nock.disableNetConnect();
@@ -57,13 +57,14 @@ describe('gcbuild', () => {
 				mockLogFetch(),
 			];
 			const sourcePath = path.resolve('test/fixtures');
-			const builder = new Builder({sourcePath});
+			const builder = new Builder({ sourcePath });
 			sinon.stub(builder.auth, 'getProjectId').resolves('el-gato');
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			sinon.stub(builder.auth, 'getClient').resolves({
 				async request(options: GaxiosOptions) {
 					return request(options);
 				},
+				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			} as any);
 			const result = await builder.build();
 			for (const s of scopes) {
@@ -88,13 +89,13 @@ describe('gcbuild', () => {
 				mockLogFetch(),
 			];
 			const sourcePath = path.resolve('test/fixtures');
-			const builder = new Builder({sourcePath});
+			const builder = new Builder({ sourcePath });
 			sinon.stub(builder.auth, 'getProjectId').resolves('el-gato');
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			sinon.stub(builder.auth, 'getClient').resolves({
 				async request(options: GaxiosOptions) {
 					return request(options);
 				},
+				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			} as any);
 			try {
 				await builder.build();
@@ -125,6 +126,7 @@ describe('gcbuild', () => {
 				tag: 'taggy',
 				projectId: 'el-gato',
 			});
+			// biome-ignore lint/style/noNonNullAssertion: <explanation>
 			assert.strictEqual(config.steps![0].name, 'gcr.io/cloud-builders/docker');
 		});
 
@@ -150,13 +152,13 @@ describe('gcbuild', () => {
 				mockLogFetch(),
 			];
 			const sourcePath = path.resolve('test/fixtures');
-			const builder = new Builder({sourcePath});
+			const builder = new Builder({ sourcePath });
 			sinon.stub(builder.auth, 'getProjectId').resolves('el-gato');
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			sinon.stub(builder.auth, 'getClient').resolves({
 				async request(options: GaxiosOptions) {
 					return request(options);
 				},
+				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			} as any);
 			const result = await builder.build();
 			for (const s of scopes) {
@@ -185,7 +187,7 @@ function mockBucketCreate() {
 		.post('/storage/v1/b?project=el-gato', {
 			name: 'el-gato-gcb-staging-bbq',
 			lifecycle: {
-				rule: [{action: {type: 'Delete'}, condition: {age: 1}}],
+				rule: [{ action: { type: 'Delete' }, condition: { age: 1 } }],
 			},
 		})
 		.reply(200);
@@ -204,14 +206,14 @@ function mockBuild() {
 		.post('/v1/projects/el-gato/builds')
 		.reply(200, {
 			name: 'not-a-real-operation',
-			metadata: {build: {logsBucket: 'gs://not-a-bucket', id: 'not-an-id'}},
+			metadata: { build: { logsBucket: 'gs://not-a-bucket', id: 'not-an-id' } },
 		});
 }
 
 function mockPoll() {
 	return nock('https://cloudbuild.googleapis.com')
 		.get('/v1/not-a-real-operation')
-		.reply(200, {done: true});
+		.reply(200, { done: true });
 }
 
 function mockLogFetch() {
@@ -223,5 +225,5 @@ function mockLogFetch() {
 function mockPollError() {
 	return nock('https://cloudbuild.googleapis.com')
 		.get('/v1/not-a-real-operation')
-		.reply(200, {error: '💩'});
+		.reply(200, { error: '💩' });
 }

@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import {type cloudbuild_v1} from 'googleapis';
+import type { cloudbuild_v1 } from 'googleapis';
 import yaml from 'js-yaml';
 
 export type GetConfigOptions = {
@@ -20,7 +20,6 @@ export async function getConfig(options: GetConfigOptions) {
 		const files = ['cloudbuild.yaml', 'cloudbuild.json', 'Dockerfile'];
 		for (const file of files) {
 			const fullpath = path.join(options.sourcePath, file);
-			// eslint-disable-next-line no-await-in-loop
 			const fileExists = await exists(fullpath);
 			if (fileExists) {
 				options.configPath = fullpath;
