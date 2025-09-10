@@ -96,7 +96,7 @@ export class Builder extends EventEmitter {
 				// 🤷‍♂️
 			}
 
-			// biome-ignore lint/style/noNonNullAssertion: <explanation>
+			// biome-ignore lint/style/noNonNullAssertion: it needs to be any
 			(error as BuildError).log = log!;
 			throw error;
 		}
@@ -115,7 +115,7 @@ export class Builder extends EventEmitter {
 	 */
 	public async getIgnoreRules() {
 		const ignoreFile = path.join(this.sourcePath, '.gcloudignore');
-		let ignoreRules = new Array<string>();
+		let ignoreRules: string[] = [];
 		try {
 			const contents = await fs.promises.readFile(ignoreFile, 'utf8');
 			ignoreRules = contents.split('\n').filter((line) => {
@@ -135,7 +135,7 @@ export class Builder extends EventEmitter {
 	 */
 	private async fetchLog(result: BuildResult): Promise<string> {
 		const { build } = result.metadata;
-		// biome-ignore lint/style/noNonNullAssertion: <explanation>
+		// biome-ignore lint/style/noNonNullAssertion: it needs to be any
 		const logsBucket = build.logsBucket!.split('gs://').find(Boolean);
 		const logFilename = `log-${build.id}.txt`;
 		const logResponse = await this.gcs.objects.get({

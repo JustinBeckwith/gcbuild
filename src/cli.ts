@@ -7,7 +7,7 @@ import chalk from 'chalk';
 import meow from 'meow';
 import ora from 'ora';
 import updateNotifier, { type Package } from 'update-notifier';
-import { type BuildOptions, Builder, ProgressEvent } from './index.js';
+import { Builder, type BuildOptions, ProgressEvent } from './index.js';
 
 const package_ = JSON.parse(
 	fs.readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
