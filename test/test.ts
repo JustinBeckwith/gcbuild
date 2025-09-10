@@ -64,7 +64,7 @@ describe('gcbuild', () => {
 				async request(options: GaxiosOptions) {
 					return request(options);
 				},
-				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+				// biome-ignore lint/suspicious/noExplicitAny: it needs to be any
 			} as any);
 			const result = await builder.build();
 			for (const s of scopes) {
@@ -75,7 +75,7 @@ describe('gcbuild', () => {
 		});
 
 		it('should PUT the file to Google Cloud Storage', async () => {
-			const builder = new Builder();
+			const _builder = new Builder();
 		});
 	});
 
@@ -95,7 +95,7 @@ describe('gcbuild', () => {
 				async request(options: GaxiosOptions) {
 					return request(options);
 				},
-				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+				// biome-ignore lint/suspicious/noExplicitAny: it needs to be any
 			} as any);
 			try {
 				await builder.build();
@@ -126,7 +126,7 @@ describe('gcbuild', () => {
 				tag: 'taggy',
 				projectId: 'el-gato',
 			});
-			// biome-ignore lint/style/noNonNullAssertion: <explanation>
+			// biome-ignore lint/style/noNonNullAssertion: it needs to be any
 			assert.strictEqual(config.steps![0].name, 'gcr.io/cloud-builders/docker');
 		});
 
@@ -158,7 +158,7 @@ describe('gcbuild', () => {
 				async request(options: GaxiosOptions) {
 					return request(options);
 				},
-				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+				// biome-ignore lint/suspicious/noExplicitAny: it needs to be any
 			} as any);
 			const result = await builder.build();
 			for (const s of scopes) {
