@@ -2,8 +2,10 @@
 > A super simple CLI and API for using Google Cloud Build.
 
 [![NPM Version](https://img.shields.io/npm/v/gcbuild.svg)](https://npmjs.org/package/gcbuild)
-[![Build Status](https://api.cirrus-ci.com/github/JustinBeckwith/gcbuild.svg)](https://cirrus-ci.com/github/JustinBeckwith/gcbuild)
+[![CI](https://github.com/JustinBeckwith/gcbuild/actions/workflows/ci.yaml/badge.svg)](https://github.com/JustinBeckwith/gcbuild/actions/workflows/ci.yaml)
 [![codecov](https://codecov.io/gh/JustinBeckwith/gcbuild/branch/main/graph/badge.svg)](https://codecov.io/gh/JustinBeckwith/gcbuild)
+[![Checked with Biome](https://img.shields.io/badge/Checked_with-Biome-60a5fa?style=flat&logo=biome)](https://biomejs.dev)
+[![Release Please](https://github.com/JustinBeckwith/gcbuild/actions/workflows/release.yaml/badge.svg)](https://github.com/JustinBeckwith/gcbuild/actions/workflows/release.yaml)
 
 ## Installation
 ```sh

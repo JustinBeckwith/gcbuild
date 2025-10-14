@@ -130,6 +130,27 @@ describe('gcbuild', () => {
 			assert.strictEqual(config.steps![0].name, 'gcr.io/cloud-builders/docker');
 		});
 
+		it('should find and parse a cloudbuild.json file', async () => {
+			const config = await getConfig({
+				sourcePath: path.resolve('test/fixtures/json'),
+				projectId: 'el-gato',
+			});
+			// biome-ignore lint/style/noNonNullAssertion: it needs to be any
+			assert.strictEqual(config.steps![0].name, 'gcr.io/cloud-builders/docker');
+			// biome-ignore lint/style/noNonNullAssertion: it needs to be any
+			assert.ok(config.images![0].includes('test-image'));
+		});
+
+		it('should throw an error if no config file is found', async () => {
+			await assert.rejects(
+				getConfig({
+					sourcePath: path.resolve('test/fixtures/empty'),
+					projectId: 'el-gato',
+				}),
+				/Unable to find configuration file/,
+			);
+		});
+
 		it('should throw an error if an unexpected config path is provided', async () => {
 			await assert.rejects(
 				getConfig({
@@ -139,6 +160,64 @@ describe('gcbuild', () => {
 				}),
 				/extension is not supported/,
 			);
+		});
+	});
+
+	describe('🔄 polling', () => {
+		it('should poll multiple times until operation is complete', async () => {
+			const scopes = [
+				mockBucketExists(),
+				mockUpload(),
+				mockBuild(),
+				mockPollNotDone(),
+				mockPoll(),
+				mockLogFetch(),
+			];
+			const sourcePath = path.resolve('test/fixtures');
+			const builder = new Builder({ sourcePath });
+			sinon.stub(builder.auth, 'getProjectId').resolves('el-gato');
+			sinon.stub(builder.auth, 'getClient').resolves({
+				async request(options: GaxiosOptions) {
+					return request(options);
+				},
+				// biome-ignore lint/suspicious/noExplicitAny: it needs to be any
+			} as any);
+			const result = await builder.build();
+			for (const s of scopes) {
+				s.done();
+			}
+
+			assert.ok(result.metadata);
+		});
+
+		it('should handle errors when log fetch fails during error handling', async () => {
+			const scopes = [
+				mockBucketExists(),
+				mockUpload(),
+				mockBuild(),
+				mockPollError(),
+				mockLogFetchError(),
+			];
+			const sourcePath = path.resolve('test/fixtures');
+			const builder = new Builder({ sourcePath });
+			sinon.stub(builder.auth, 'getProjectId').resolves('el-gato');
+			sinon.stub(builder.auth, 'getClient').resolves({
+				async request(options: GaxiosOptions) {
+					return request(options);
+				},
+				// biome-ignore lint/suspicious/noExplicitAny: it needs to be any
+			} as any);
+			try {
+				await builder.build();
+				assert.fail('Expected to throw.');
+			} catch (error) {
+				const error_ = error as BuildError;
+				assert.ok(!error_.log);
+			}
+
+			for (const s of scopes) {
+				s.done();
+			}
 		});
 	});
 
@@ -166,6 +245,45 @@ describe('gcbuild', () => {
 			}
 
 			assert.ok(result.metadata);
+		});
+
+		it('should work with the build() wrapper function', async () => {
+			const { build, Builder: BuilderClass } = await import('../src/index.js');
+			const scopes = [
+				mockBucketExists(),
+				mockUpload(),
+				mockBuild(),
+				mockPoll(),
+				mockLogFetch(),
+			];
+			const sourcePath = path.resolve('test/fixtures');
+
+			// Create a spy on Builder to verify it gets called
+			const originalBuild = BuilderClass.prototype.build;
+			const buildSpy = sinon
+				.stub(BuilderClass.prototype, 'build')
+				.callsFake(async function (this: Builder) {
+					// Stub auth on the instance
+					sinon.stub(this.auth, 'getProjectId').resolves('el-gato');
+					sinon.stub(this.auth, 'getClient').resolves({
+						async request(options: GaxiosOptions) {
+							return request(options);
+						},
+						// biome-ignore lint/suspicious/noExplicitAny: test mock requires flexible typing
+					} as any);
+					return originalBuild.call(this);
+				});
+
+			const result = await build({ sourcePath });
+
+			buildSpy.restore();
+
+			for (const s of scopes) {
+				s.done();
+			}
+
+			assert.ok(result.metadata);
+			assert.ok(buildSpy.calledOnce);
 		});
 	});
 });
@@ -216,10 +334,22 @@ function mockPoll() {
 		.reply(200, { done: true });
 }
 
+function mockPollNotDone() {
+	return nock('https://cloudbuild.googleapis.com')
+		.get('/v1/not-a-real-operation')
+		.reply(200, { done: false });
+}
+
 function mockLogFetch() {
 	return nock('https://storage.googleapis.com')
 		.get('/storage/v1/b/not-a-bucket/o/log-not-an-id.txt?alt=media')
 		.reply(200, '🌳');
+}
+
+function mockLogFetchError() {
+	return nock('https://storage.googleapis.com')
+		.get('/storage/v1/b/not-a-bucket/o/log-not-an-id.txt?alt=media')
+		.reply(404);
 }
 
 function mockPollError() {
