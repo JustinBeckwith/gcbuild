@@ -31,18 +31,3 @@ jobs:
           node-version: 22
       - run: npm install
       - run: npm run lint
-  release:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    needs: [test, lint]
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-      - run: npm install
-      - run: npm run compile
-      - run: npx semantic-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
