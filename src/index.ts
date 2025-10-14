@@ -5,7 +5,7 @@ import process from 'node:process';
 import { PassThrough } from 'node:stream';
 import { globby } from 'globby';
 import { Auth, type cloudbuild_v1, google, type storage_v1 } from 'googleapis';
-import tar from 'tar';
+import { c as tarCreate } from 'tar';
 import { getConfig } from './config.js';
 
 export enum ProgressEvent {
@@ -207,7 +207,7 @@ export class Builder extends EventEmitter {
 		});
 
 		// Create a tar stream with all the files
-		const tarStream = tar.c({ gzip: true, cwd: this.sourcePath }, files);
+		const tarStream = tarCreate({ gzip: true, cwd: this.sourcePath }, files);
 
 		// There is a bizarre bug with node-tar where the stream it hands back
 		// looks like a stream and talks like a stream, but it ain't a real
