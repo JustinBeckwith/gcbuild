@@ -15,7 +15,7 @@
     "src/.gcloudignore"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=20"
   },
   "scripts": {
     "test": "c8 mocha build/test",
