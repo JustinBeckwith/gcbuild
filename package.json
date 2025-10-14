@@ -37,7 +37,7 @@
   "dependencies": {
     "chalk": "^5.0.0",
     "globby": "^14.0.0",
-    "googleapis": "^146.0.0",
+    "googleapis": "^162.0.0",
     "js-yaml": "^4.1.0",
     "meow": "^13.0.0",
     "ora": "^8.0.0",
@@ -45,7 +45,7 @@
     "update-notifier": "^7.0.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.2.4",
+    "@biomejs/biome": "^2.2.6",
     "@types/js-yaml": "^4.0.4",
     "@types/mocha": "^10.0.0",
     "@types/node": "^22.0.0",
