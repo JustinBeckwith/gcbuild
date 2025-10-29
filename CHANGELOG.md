@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.1.0](https://github.com/JustinBeckwith/gcbuild/compare/gcbuild-v2.0.0...gcbuild-v2.1.0) (2025-10-29)
+
+
+### Features
+
+* add build options, management methods, and enhanced error handling ([#291](https://github.com/JustinBeckwith/gcbuild/issues/291)) ([815446b](https://github.com/JustinBeckwith/gcbuild/commit/815446be0f7f19126fd04cccfdfe44e2a00f09b2))
+
+
+### Bug Fixes
+
+* **deps:** update dependency googleapis to v163 ([#287](https://github.com/JustinBeckwith/gcbuild/issues/287)) ([afaa930](https://github.com/JustinBeckwith/gcbuild/commit/afaa930fedb45ceb2d0cda6a63ea41b49fb61c93))
+* **deps:** update dependency googleapis to v164 ([#289](https://github.com/JustinBeckwith/gcbuild/issues/289)) ([a4f41e0](https://github.com/JustinBeckwith/gcbuild/commit/a4f41e037d9ed01144ca3f6dbf1fc95c6eb209bd))
+
 ## [2.0.0](https://github.com/JustinBeckwith/gcbuild/compare/gcbuild-v1.3.39...gcbuild-v2.0.0) (2025-10-14)
 
 
