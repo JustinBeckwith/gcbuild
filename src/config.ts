@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { cloudbuild_v1 } from 'googleapis';
+import type { protos } from '@google-cloud/cloudbuild';
 import yaml from 'js-yaml';
 
 export type GetConfigOptions = {
@@ -34,7 +34,7 @@ export async function getConfig(options: GetConfigOptions) {
       cloudbuild.json, or Dockerfile in the source directory.`);
 	}
 
-	let config: cloudbuild_v1.Schema$Build;
+	let config: protos.google.devtools.cloudbuild.v1.IBuild;
 	if (path.basename(options.configPath) === 'Dockerfile') {
 		options.tag ||= path.basename(options.sourcePath);
 
@@ -60,14 +60,16 @@ export async function getConfig(options: GetConfigOptions) {
 		const extension = path.extname(options.configPath);
 		switch (extension) {
 			case '.json': {
-				config = JSON.parse(configFileContents) as cloudbuild_v1.Schema$Build;
+				config = JSON.parse(
+					configFileContents,
+				) as protos.google.devtools.cloudbuild.v1.IBuild;
 				break;
 			}
 
 			case '.yaml': {
 				config = (await yaml.load(
 					configFileContents,
-				)) as cloudbuild_v1.Schema$Build;
+				)) as protos.google.devtools.cloudbuild.v1.IBuild;
 				break;
 			}
 
