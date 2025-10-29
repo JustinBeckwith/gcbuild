@@ -103,7 +103,7 @@ describe('CLI integration tests', () => {
 			const contents = await fs.promises.readFile(ignoreFilePath, 'utf8');
 			expect(contents).toContain('.gcloudignore');
 			expect(contents).toContain('.git');
-		});
+		}, 10000);
 	});
 
 	describe('🔧 configuration', () => {

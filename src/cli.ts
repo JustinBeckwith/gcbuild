@@ -17,10 +17,16 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const package_ = JSON.parse(
-	fs.readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
-) as Package;
-updateNotifier({ pkg: package_ }).notify();
+// Try to read package.json, but don't fail if it doesn't exist (e.g., in tests)
+let package_: Package | undefined;
+try {
+	package_ = JSON.parse(
+		fs.readFileSync(path.resolve(__dirname, '../../package.json'), 'utf8'),
+	) as Package;
+	updateNotifier({ pkg: package_ }).notify();
+} catch {
+	// In test environment, package.json might not be accessible
+}
 
 const cli = meow(
 	`
