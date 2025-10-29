@@ -36,8 +36,8 @@ describe('gcbuild', () => {
 			await new Promise((resolve, reject) => {
 				fs.createReadStream(gcloudignore)
 					.pipe(fs.createWriteStream('.gcloudignore'))
-					.on('close', resolve)
-					.on('error', reject);
+					.on('close', () => resolve(undefined))
+					.on('error', (err) => reject(err));
 			});
 			const builder = new Builder();
 			const rules = await builder.getIgnoreRules();
