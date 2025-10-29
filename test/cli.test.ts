@@ -107,43 +107,31 @@ describe('CLI integration tests', () => {
 	});
 
 	describe('🔧 configuration', () => {
-		it(
-			'should accept --config flag',
-			async () => {
-				const result = await runCLI([
-					'test/fixtures/json',
-					'--config=test/fixtures/json/cloudbuild.json',
-				]);
+		it('should accept --config flag', async () => {
+			const result = await runCLI([
+				'test/fixtures/json',
+				'--config=test/fixtures/json/cloudbuild.json',
+			]);
 
-				// The command will fail due to missing credentials, but it should parse the config
-				expect(result.stderr).toBeTruthy(); // Will have error output
-			},
-			7000,
-		);
+			// The command will fail due to missing credentials, but it should parse the config
+			expect(result.stderr).toBeTruthy(); // Will have error output
+		}, 7000);
 
-		it(
-			'should accept --tag flag',
-			async () => {
-				const result = await runCLI([
-					'test/fixtures/docker',
-					'--tag=my-custom-tag',
-				]);
+		it('should accept --tag flag', async () => {
+			const result = await runCLI([
+				'test/fixtures/docker',
+				'--tag=my-custom-tag',
+			]);
 
-				// The command will fail due to missing credentials, but it should parse the tag
-				expect(result.stderr).toBeTruthy(); // Will have error output
-			},
-			7000,
-		);
+			// The command will fail due to missing credentials, but it should parse the tag
+			expect(result.stderr).toBeTruthy(); // Will have error output
+		}, 7000);
 
-		it(
-			'should handle relative source paths',
-			async () => {
-				const result = await runCLI(['test/fixtures/docker']);
+		it('should handle relative source paths', async () => {
+			const result = await runCLI(['test/fixtures/docker']);
 
-				// Should attempt to build from the relative path
-				expect(result.stderr).toBeTruthy(); // Will have error output
-			},
-			7000,
-		);
+			// Should attempt to build from the relative path
+			expect(result.stderr).toBeTruthy(); // Will have error output
+		}, 7000);
 	});
 });
