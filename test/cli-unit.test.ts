@@ -1,10 +1,29 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+	afterAll,
+	afterEach,
+	beforeAll,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from 'vitest';
 import { generateIgnoreFile, hasIgnoreFile, main } from '../src/cli.js';
 import { Builder } from '../src/index.js';
 
 describe('CLI unit tests', () => {
+	// Set up fake credentials to avoid real auth calls
+	const originalEnv = process.env;
+	beforeAll(() => {
+		process.env.GCLOUD_PROJECT = 'el-gato';
+		process.env.GCE_METADATA_HOST = 'metadata.google.internal.invalid';
+	});
+
+	afterAll(() => {
+		process.env = originalEnv;
+	});
 	describe('hasIgnoreFile', () => {
 		const testDir = path.resolve('test/fixtures/temp-cli-unit');
 		const ignoreFilePath = path.join(testDir, '.gcloudignore');
@@ -163,11 +182,15 @@ describe('CLI unit tests', () => {
 			const exists = fs.existsSync(ignoreFilePath);
 			expect(exists).toBe(true);
 
-			// Cleanup
-			await fs.promises.rm(testDir, { recursive: true, force: true });
-
+			// Restore mocks BEFORE cleanup to ensure no pending operations
 			buildSpy.mockRestore();
 			exitSpy.mockRestore();
+
+			// Add a small delay to let any pending async operations complete
+			await new Promise((resolve) => setTimeout(resolve, 100));
+
+			// Cleanup
+			await fs.promises.rm(testDir, { recursive: true, force: true });
 		});
 
 		it('should accept config and tag flags', async () => {
