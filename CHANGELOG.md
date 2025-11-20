@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.1](https://github.com/JustinBeckwith/gcbuild/compare/gcbuild-v2.1.0...gcbuild-v2.1.1) (2025-11-20)
+
+
+### Bug Fixes
+
+* **deps:** update dependency globby to v16 ([#296](https://github.com/JustinBeckwith/gcbuild/issues/296)) ([20c126c](https://github.com/JustinBeckwith/gcbuild/commit/20c126c1fbc45030a6533138f7e98d1cced071d2))
+* resolve race condition in CLI unit tests ([#298](https://github.com/JustinBeckwith/gcbuild/issues/298)) ([d723b20](https://github.com/JustinBeckwith/gcbuild/commit/d723b202094d18c89845afcdf418796ee47d2888))
+
 ## [2.1.0](https://github.com/JustinBeckwith/gcbuild/compare/gcbuild-v2.0.0...gcbuild-v2.1.0) (2025-10-29)
 
 
