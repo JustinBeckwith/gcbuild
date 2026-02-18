@@ -51,7 +51,7 @@
     "@biomejs/biome": "^2.2.6",
     "@types/js-yaml": "^4.0.4",
     "@types/node": "^24.0.0",
-    "@types/tar": "^6.1.0",
+    "@types/tar": "^7.0.0",
     "@types/update-notifier": "^6.0.1",
     "@vitest/coverage-v8": "^4.0.4",
     "gaxios": "^7.0.0",
