@@ -10,12 +10,12 @@ import {
 	it,
 	vi,
 } from 'vitest';
+
 const buildMock = vi.fn();
 
 vi.mock('../src/index.js', async () => {
-	const actual = await vi.importActual<typeof import('../src/index.js')>(
-		'../src/index.js',
-	);
+	const actual =
+		await vi.importActual<typeof import('../src/index.js')>('../src/index.js');
 
 	class MockBuilder {
 		on() {
