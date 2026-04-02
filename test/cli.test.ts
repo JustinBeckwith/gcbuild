@@ -69,7 +69,8 @@ describe('CLI integration tests', () => {
 		const ignoreFilePath = path.join(tempDir, '.gcloudignore');
 
 		beforeEach(async () => {
-			// Create temp directory
+			// Start from a clean fixture directory in case a previous run left files behind.
+			await fs.promises.rm(tempDir, { recursive: true, force: true });
 			await fs.promises.mkdir(tempDir, { recursive: true });
 		});
 

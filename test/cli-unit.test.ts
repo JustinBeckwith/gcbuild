@@ -10,8 +10,30 @@ import {
 	it,
 	vi,
 } from 'vitest';
+const buildMock = vi.fn();
+
+vi.mock('../src/index.js', async () => {
+	const actual = await vi.importActual<typeof import('../src/index.js')>(
+		'../src/index.js',
+	);
+
+	class MockBuilder {
+		on() {
+			return this;
+		}
+
+		async build() {
+			return buildMock();
+		}
+	}
+
+	return {
+		...actual,
+		Builder: MockBuilder,
+	};
+});
+
 import { generateIgnoreFile, hasIgnoreFile, main } from '../src/cli.js';
-import { Builder } from '../src/index.js';
 
 describe('CLI unit tests', () => {
 	// Set up fake credentials to avoid real auth calls
@@ -24,12 +46,20 @@ describe('CLI unit tests', () => {
 	afterAll(() => {
 		process.env = originalEnv;
 	});
+
+	afterEach(() => {
+		vi.clearAllMocks();
+	});
+
 	describe('hasIgnoreFile', () => {
-		const testDir = path.resolve('test/fixtures/temp-cli-unit');
-		const ignoreFilePath = path.join(testDir, '.gcloudignore');
+		let testDir: string;
+		let ignoreFilePath: string;
 
 		beforeEach(async () => {
-			await fs.promises.mkdir(testDir, { recursive: true });
+			testDir = await fs.promises.mkdtemp(
+				path.join(path.resolve('test/fixtures'), 'temp-cli-unit-'),
+			);
+			ignoreFilePath = path.join(testDir, '.gcloudignore');
 		});
 
 		afterEach(async () => {
@@ -53,11 +83,14 @@ describe('CLI unit tests', () => {
 	});
 
 	describe('generateIgnoreFile', () => {
-		const testDir = path.resolve('test/fixtures/temp-cli-unit');
-		const ignoreFilePath = path.join(testDir, '.gcloudignore');
+		let testDir: string;
+		let ignoreFilePath: string;
 
 		beforeEach(async () => {
-			await fs.promises.mkdir(testDir, { recursive: true });
+			testDir = await fs.promises.mkdtemp(
+				path.join(path.resolve('test/fixtures'), 'temp-cli-unit-'),
+			);
+			ignoreFilePath = path.join(testDir, '.gcloudignore');
 		});
 
 		afterEach(async () => {
@@ -97,10 +130,7 @@ describe('CLI unit tests', () => {
 			const testDir = 'test/fixtures/docker';
 			let helpCalled = false;
 
-			// Mock Builder to prevent actual build
-			const buildSpy = vi
-				.spyOn(Builder.prototype, 'build')
-				.mockRejectedValue(new Error('Mock error'));
+			buildMock.mockRejectedValue(new Error('Mock error'));
 			const exitSpy = vi
 				.spyOn(process, 'exit')
 				.mockImplementation((() => {}) as never);
@@ -119,18 +149,12 @@ describe('CLI unit tests', () => {
 
 			expect(helpCalled).toBe(false);
 			expect(exitSpy).toHaveBeenCalledWith(1);
-
-			buildSpy.mockRestore();
-			exitSpy.mockRestore();
 		});
 
 		it('should handle absolute source paths', async () => {
 			const testDir = path.resolve('test/fixtures/docker');
 
-			// Mock Builder to prevent actual build
-			const buildSpy = vi
-				.spyOn(Builder.prototype, 'build')
-				.mockRejectedValue(new Error('Mock error'));
+			buildMock.mockRejectedValue(new Error('Mock error'));
 			const exitSpy = vi
 				.spyOn(process, 'exit')
 				.mockImplementation((() => {}) as never);
@@ -145,61 +169,46 @@ describe('CLI unit tests', () => {
 			}
 
 			expect(exitSpy).toHaveBeenCalledWith(1);
-
-			buildSpy.mockRestore();
-			exitSpy.mockRestore();
 		});
 
 		it('should generate ignore file if missing', async () => {
-			const testDir = path.resolve('test/fixtures/temp-cli-unit-main');
+			const testDir = await fs.promises.mkdtemp(
+				path.join(path.resolve('test/fixtures'), 'temp-cli-unit-main-'),
+			);
 			const ignoreFilePath = path.join(testDir, '.gcloudignore');
 
-			// Create test directory with a config file
-			await fs.promises.mkdir(testDir, { recursive: true });
-			await fs.promises.writeFile(
-				path.join(testDir, 'Dockerfile'),
-				'FROM node:20\nCMD ["node", "index.js"]',
-			);
-
-			// Mock Builder to prevent actual build
-			const buildSpy = vi
-				.spyOn(Builder.prototype, 'build')
-				.mockRejectedValue(new Error('Mock error'));
-			const exitSpy = vi
-				.spyOn(process, 'exit')
-				.mockImplementation((() => {}) as never);
-
 			try {
+				// Create test directory with a config file
+				await fs.promises.writeFile(
+					path.join(testDir, 'Dockerfile'),
+					'FROM node:20\nCMD ["node", "index.js"]',
+				);
+
+				buildMock.mockRejectedValue(new Error('Mock error'));
+				const exitSpy = vi
+					.spyOn(process, 'exit')
+					.mockImplementation((() => {}) as never);
+
 				await main({
 					input: [testDir],
 					flags: {},
+				}).catch(() => {
+					// Expected to fail with mock error
 				});
-			} catch {
-				// Expected to fail with mock error
+
+				// Check that ignore file was generated
+				const exists = fs.existsSync(ignoreFilePath);
+				expect(exists).toBe(true);
+				expect(exitSpy).toHaveBeenCalledWith(1);
+			} finally {
+				await fs.promises.rm(testDir, { recursive: true, force: true });
 			}
-
-			// Check that ignore file was generated
-			const exists = fs.existsSync(ignoreFilePath);
-			expect(exists).toBe(true);
-
-			// Restore mocks BEFORE cleanup to ensure no pending operations
-			buildSpy.mockRestore();
-			exitSpy.mockRestore();
-
-			// Add a small delay to let any pending async operations complete
-			await new Promise((resolve) => setTimeout(resolve, 100));
-
-			// Cleanup
-			await fs.promises.rm(testDir, { recursive: true, force: true });
 		});
 
 		it('should accept config and tag flags', async () => {
 			const testDir = path.resolve('test/fixtures/json');
 
-			// Mock Builder to prevent actual build
-			const builderSpy = vi
-				.spyOn(Builder.prototype, 'build')
-				.mockRejectedValue(new Error('Mock error'));
+			buildMock.mockRejectedValue(new Error('Mock error'));
 			const exitSpy = vi
 				.spyOn(process, 'exit')
 				.mockImplementation((() => {}) as never);
@@ -217,9 +226,6 @@ describe('CLI unit tests', () => {
 			}
 
 			expect(exitSpy).toHaveBeenCalledWith(1);
-
-			builderSpy.mockRestore();
-			exitSpy.mockRestore();
 		});
 	});
 });
