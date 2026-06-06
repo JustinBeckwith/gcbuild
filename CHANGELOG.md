@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0](https://github.com/JustinBeckwith/gcbuild/compare/gcbuild-v2.1.1...gcbuild-v3.0.0) (2026-06-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* require node 22 and up ([#334](https://github.com/JustinBeckwith/gcbuild/issues/334))
+
+### Build System
+
+* require node 22 and up ([#334](https://github.com/JustinBeckwith/gcbuild/issues/334)) ([d0d0c4b](https://github.com/JustinBeckwith/gcbuild/commit/d0d0c4b12d46f459e4d7915ac431259370e86a16))
+
 ## [2.1.1](https://github.com/JustinBeckwith/gcbuild/compare/gcbuild-v2.1.0...gcbuild-v2.1.1) (2025-11-20)
 
 
