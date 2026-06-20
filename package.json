@@ -1,6 +1,6 @@
 {
   "name": "gcbuild",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "An API and CLI for building docker containers with Google Cloud Build.",
   "repository": "JustinBeckwith/gcbuild",
   "bin": {
