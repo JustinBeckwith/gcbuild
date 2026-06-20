@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { protos } from '@google-cloud/cloudbuild';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 
 export type GetConfigOptions = {
 	configPath?: string;
