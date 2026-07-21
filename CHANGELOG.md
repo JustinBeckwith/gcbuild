@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/JustinBeckwith/gcbuild/compare/gcbuild-v3.0.0...gcbuild-v3.0.1) (2026-07-21)
+
+
+### Bug Fixes
+
+* **deps:** update dependency js-yaml to v5 ([#343](https://github.com/JustinBeckwith/gcbuild/issues/343)) ([8ee4695](https://github.com/JustinBeckwith/gcbuild/commit/8ee46953888b9dfdf35b16d50603a10af25c4c89))
+
 ## [3.0.0](https://github.com/JustinBeckwith/gcbuild/compare/gcbuild-v2.1.1...gcbuild-v3.0.0) (2026-06-06)
 
 
