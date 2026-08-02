@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.0.2](https://github.com/JustinBeckwith/gcbuild/compare/gcbuild-v3.0.1...gcbuild-v3.0.2) (2026-08-02)
+
+
+### Bug Fixes
+
+* **deps:** update dependency chalk to v6 ([#352](https://github.com/JustinBeckwith/gcbuild/issues/352)) ([85cc005](https://github.com/JustinBeckwith/gcbuild/commit/85cc00535baa462e7a75324c8a4e66ce7bc48ec9))
+* **deps:** update dependency google-auth-library to v11 ([#359](https://github.com/JustinBeckwith/gcbuild/issues/359)) ([9e6e05b](https://github.com/JustinBeckwith/gcbuild/commit/9e6e05b268fdd6c8382a6dc8efbc8b9c04c2e832))
+
 ## [3.0.1](https://github.com/JustinBeckwith/gcbuild/compare/gcbuild-v3.0.0...gcbuild-v3.0.1) (2026-07-21)
 
 
