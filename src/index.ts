@@ -93,7 +93,12 @@ export class Builder extends EventEmitter {
 			...authOptions
 		} = options;
 
-		this.gcb = new CloudBuildClient(authOptions);
+		// google-gax may depend on a different major of google-auth-library. The
+		// options are runtime-compatible, but TypeScript treats auth clients from
+		// the two installed copies as unrelated types.
+		this.gcb = new CloudBuildClient(
+			authOptions as ConstructorParameters<typeof CloudBuildClient>[0],
+		);
 		// For Storage, pass minimal options to avoid type conflicts with different google-auth-library versions
 		this.gcs = new Storage({
 			projectId: options.projectId,
