@@ -36,7 +36,7 @@
   "author": "Justin Beckwith <justin.beckwith@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@google-cloud/cloudbuild": "^5.3.1",
+    "@google-cloud/cloudbuild": "^6.0.0",
     "@google-cloud/storage": "^8.0.0",
     "chalk": "^6.0.0",
     "globby": "^16.0.0",
