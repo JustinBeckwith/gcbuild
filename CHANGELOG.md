@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.0.3](https://github.com/JustinBeckwith/gcbuild/compare/gcbuild-v3.0.2...gcbuild-v3.0.3) (2026-08-29)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @google-cloud/cloudbuild to v6 ([#363](https://github.com/JustinBeckwith/gcbuild/issues/363)) ([005a8de](https://github.com/JustinBeckwith/gcbuild/commit/005a8de0d31e27979a0c7b7fff826c8e94a3dc9e))
+* **deps:** update dependency @google-cloud/storage to v8 ([#360](https://github.com/JustinBeckwith/gcbuild/issues/360)) ([0b09f8c](https://github.com/JustinBeckwith/gcbuild/commit/0b09f8c22f7a64acf3b31fa8c6212354ef7bc92b))
+
 ## [3.0.2](https://github.com/JustinBeckwith/gcbuild/compare/gcbuild-v3.0.1...gcbuild-v3.0.2) (2026-08-02)
 
 
