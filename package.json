@@ -37,7 +37,7 @@
   "license": "MIT",
   "dependencies": {
     "@google-cloud/cloudbuild": "^6.0.0",
-    "@google-cloud/storage": "^8.0.0",
+    "@google-cloud/storage": "^9.0.0",
     "chalk": "^6.0.0",
     "globby": "^16.0.0",
     "google-auth-library": "^11.0.0",
