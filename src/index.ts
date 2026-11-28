@@ -2,13 +2,13 @@ import { EventEmitter } from 'node:events';
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
-import { PassThrough } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import type { protos } from '@google-cloud/cloudbuild';
 import { CloudBuildClient } from '@google-cloud/cloudbuild';
 import { Storage } from '@google-cloud/storage';
 import { globby } from 'globby';
 import { GoogleAuth, type GoogleAuthOptions } from 'google-auth-library';
-import { c as tarCreate } from 'tar';
+import { create as tarCreate } from 'tar';
 import { getConfig } from './config.js';
 
 export enum ProgressEvent {
@@ -383,29 +383,19 @@ export class Builder extends EventEmitter {
 		// Create a tar stream with all the files
 		const tarStream = tarCreate({ gzip: true, cwd: this.sourcePath }, files);
 
-		// There is a bizarre bug with node-tar where the stream it hands back
-		// looks like a stream and talks like a stream, but it ain't a real
-		// stream.  Pass it through a Duplex to make node-fetch happy.
-		const bodyStream = new PassThrough();
-		tarStream.pipe(bodyStream);
-
 		// Upload the object via stream to GCS
 		const fileName = `${Date.now().toString()}.tar.gz`;
 		const file = bucket.file(fileName);
 
-		await new Promise((resolve, reject) => {
-			bodyStream
-				.pipe(
-					file.createWriteStream({
-						metadata: {
-							contentType: 'application/gzip',
-						},
-						resumable: false,
-					}),
-				)
-				.on('error', (err) => reject(err))
-				.on('finish', () => resolve(undefined));
-		});
+		await pipeline(
+			tarStream,
+			file.createWriteStream({
+				metadata: {
+					contentType: 'application/gzip',
+				},
+				resumable: false,
+			}),
+		);
 
 		return { bucket: bucketName, file: fileName };
 	}
