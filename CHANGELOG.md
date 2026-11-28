@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.0.4](https://github.com/JustinBeckwith/gcbuild/compare/gcbuild-v3.0.3...gcbuild-v3.0.4) (2026-11-28)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @google-cloud/storage to v9 ([#381](https://github.com/JustinBeckwith/gcbuild/issues/381)) ([86b1580](https://github.com/JustinBeckwith/gcbuild/commit/86b158067ce1329b82c72f9e0d34c0d8bddb516b))
+* **deps:** update dependency ora to v10 ([#379](https://github.com/JustinBeckwith/gcbuild/issues/379)) ([0e2f908](https://github.com/JustinBeckwith/gcbuild/commit/0e2f908986d0004e37a0cac297bea8c77d2fd192))
+* **deps:** update dependency tar to v8 ([#383](https://github.com/JustinBeckwith/gcbuild/issues/383)) ([1aed8e9](https://github.com/JustinBeckwith/gcbuild/commit/1aed8e90bac834e8e57c08f2cec6fa742e106e18))
+
 ## [3.0.3](https://github.com/JustinBeckwith/gcbuild/compare/gcbuild-v3.0.2...gcbuild-v3.0.3) (2026-09-16)
 
 
